@@ -1,0 +1,8 @@
+	.ref _atoi
+	.def _atol
+	.assume adl=1
+
+; long atol(char *cp);
+
+_atol		equ _atoi
+

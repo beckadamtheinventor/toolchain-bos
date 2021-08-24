@@ -1,0 +1,16 @@
+; ---
+; remove breakpoint
+; ---
+
+	.def	_dbg_RemoveBreakpoint
+	.assume	adl=1
+
+_dbg_RemoveBreakpoint:
+	pop	hl
+	pop	de
+	push	de
+	push	hl
+	scf
+	sbc	hl,hl
+	ld	(hl),4
+	ret

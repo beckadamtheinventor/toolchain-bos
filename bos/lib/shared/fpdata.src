@@ -1,0 +1,8 @@
+	section	.text,"ax",@progbits
+	assume	adl = 1
+	section	.data,"aw",@progbits
+	public	__huge_val
+__huge_val:
+	dd	0x7f7fffff
+
+	ident	"clang version 12.0.0 (https://github.com/jacobly0/llvm-project f1906007dd73cb37b01d5860b542715ee76f2492)"

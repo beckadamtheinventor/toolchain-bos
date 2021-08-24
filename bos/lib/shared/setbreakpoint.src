@@ -1,0 +1,16 @@
+; ---
+; set breakpoint
+; ---
+
+	.def	_dbg_SetBreakpoint
+	.assume	adl=1
+
+_dbg_SetBreakpoint:
+	pop	hl
+	pop	de
+	push	de
+	push	hl
+	scf
+	sbc	hl,hl
+	ld	(hl),3
+	ret

@@ -1,0 +1,237 @@
+	section	.text,"ax",@progbits
+	assume	adl = 1
+	section	.text,"ax",@progbits
+	public	__u_dtoe
+__u_dtoe:
+	ld	hl, -13
+	call	__frameset
+	ld	iy, (ix + 6)
+	ld	c, (ix + 9)
+	ld	de, __info
+	ld	a, (___print_fmt+6)
+	ld	l, a
+	rlc	l
+	sbc	hl, hl
+	ld	(ix + -13), a
+	ld	l, a
+	inc	hl
+	ld	(ix + -9), hl
+	push	de
+	ld	l, c
+	push	hl
+	push	iy
+	call	__u_flt_info
+	pop	hl
+	pop	hl
+	pop	hl
+	ld	de, 6
+	ld	bc, (ix + -9)
+	push	bc
+	pop	hl
+	or	a, a
+	sbc	hl, de
+	jq	c, BB0_2
+	ld	bc, 6
+BB0_2:
+	push	bc
+	ld	hl, __info
+	push	hl
+	call	__u_flt_rnd
+	pop	hl
+	pop	hl
+	ld	a, (__info)
+	cp	a, 1
+	jq	nz, BB0_5
+	ld	a, 45
+	jq	BB0_4
+BB0_5:
+	ld	a, (___print_fmt+1)
+	bit	1, a
+	jq	nz, BB0_8
+	bit	3, a
+	ld	d, 0
+	ld	bc, (ix + -9)
+	jq	nz, BB0_9
+	ld	iy, ___print_buff
+	jq	BB0_11
+BB0_8:
+	ld	a, 43
+BB0_4:
+	ld	d, 0
+	ld	bc, (ix + -9)
+BB0_10:
+	ld	iy, ___print_buff+1
+	ld	(___print_buff), a
+BB0_11:
+	ld	a, (__info+2)
+	add	a, 48
+	ld	(iy), a
+	ld	a, (___print_fmt+6)
+	or	a, a
+	jq	nz, BB0_13
+	inc	iy
+	jq	BB0_14
+BB0_13:
+	lea	hl, iy + 2
+	ld	(iy + 1), 46
+	push	hl
+	pop	iy
+BB0_14:
+	ld	(ix + -12), iy
+	ld	hl, 1
+	ld	(ix + -3), hl
+	ld	e, d
+BB0_15:
+	push	bc
+	pop	hl
+	push	bc
+	pop	iy
+	add	iy, iy
+	sbc	hl, hl
+	ld	(ix + -6), hl
+	ld	hl, (ix + -3)
+	ld	iy, (ix + -6)
+	ld	a, iyl
+	call	__lcmpu
+	jq	nc, BB0_17
+	ld	(ix + -6), e
+	ld	de, (ix + -3)
+	push	de
+	pop	hl
+	ld	bc, 255
+	call	__iand
+	push	hl
+	pop	bc
+	ld	hl, __info+2
+	add	hl, bc
+	ld	a, (hl)
+	add	a, 48
+	ld	hl, (ix + -12)
+	ld	(hl), a
+	inc	hl
+	ld	(ix + -12), hl
+	ex	de, hl
+	xor	a, a
+	ld	e, (ix + -6)
+	ld	bc, 1
+	call	__ladd
+	ld	(ix + -3), hl
+	ld	bc, (ix + -9)
+	jq	BB0_15
+BB0_17:
+	ld	a, (___print_fmt+1)
+	and	a, 8
+	ld	l, a
+	or	a, a
+	jq	nz, BB0_23
+	ld	a, (___print_fmt+4)
+	cp	a, 71
+	jq	z, BB0_20
+	cp	a, 103
+	jq	nz, BB0_23
+BB0_20:
+	ld	hl, (ix + -12)
+BB0_21:
+	push	hl
+	pop	iy
+	dec	hl
+	ld	a, (iy + -1)
+	cp	a, 46
+	jq	z, BB0_29
+	cp	a, 48
+	jq	z, BB0_21
+	jq	BB0_30
+BB0_23:
+	ld	a, (ix + -13)
+	or	a, a
+	jq	nz, BB0_26
+	ld	a, l
+	or	a, a
+	jq	z, BB0_28
+BB0_26:
+	ld	iy, (ix + -12)
+	jq	BB0_30
+BB0_28:
+	ld	hl, (ix + -12)
+	dec	hl
+BB0_29:
+	push	hl
+	pop	iy
+BB0_30:
+	ld	(ix + -3), iy
+	ld	a, (___print_fmt+4)
+	ld	l, a
+	rlc	l
+	sbc	hl, hl
+	ld	l, a
+	push	hl
+	call	_isupper
+	pop	de
+	add	hl, bc
+	or	a, a
+	sbc	hl, bc
+	ld	a, 101
+	jq	z, BB0_32
+	ld	a, 69
+BB0_32:
+	ld	iy, (ix + -3)
+	ld	(iy), a
+	ld	a, (__info+1)
+	ld	e, a
+	cp	a, 0
+	call	__setflag
+	jq	p, BB0_34
+	ld	(iy + 1), 45
+	ld	a, e
+	rlc	a
+	sbc	a, a
+	ld	d, a
+	ld.sis	hl, 0
+	or	a, a
+	sbc.sis	hl, de
+	ld	e, l
+	ld	d, h
+	jq	BB0_35
+BB0_34:
+	ld	(iy + 1), 43
+	ld	d, 0
+BB0_35:
+	ld	c, 10
+	ld	b, e
+	call	__bdivu
+	add	a, 48
+	ld	(iy + 2), a
+	ld	a, e
+	call	__bremu
+	or	a, 48
+	lea	hl, iy + 4
+	ld	(iy + 3), a
+	ld	(iy + 4), 0
+	ld	sp, ix
+	pop	ix
+	ret
+BB0_9:
+	ld	a, 32
+	jq	BB0_10
+	section	.text,"ax",@progbits
+
+	section	.bss,"aw",@nobits
+	public	__info
+__info:
+	rb	12
+
+	ident	"clang version 12.0.0 (https://github.com/jacobly0/llvm-project f1906007dd73cb37b01d5860b542715ee76f2492)"
+	extern	__setflag
+	extern	__Unwind_SjLj_Register
+	extern	__Unwind_SjLj_Unregister
+	extern	__frameset
+	extern	__u_flt_rnd
+	extern	__iand
+	extern	__bremu
+	extern	___print_fmt
+	extern	__u_flt_info
+	extern	_isupper
+	extern	___print_buff
+	extern	__lcmpu
+	extern	__ladd
+	extern	__bdivu

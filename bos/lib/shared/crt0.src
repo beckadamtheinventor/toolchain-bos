@@ -1,0 +1,423 @@
+	assume	adl=1
+
+	public	_errno
+_errno := $d008dc
+
+	section	.text
+	public	_atexit
+_atexit:
+	public	_on_exit
+_on_exit:
+	ld	hl,3*long
+	push	hl
+	call	_malloc
+	pop	bc
+	ex	de,hl
+	scf
+	sbc	hl,hl
+	add	hl,de
+	ret	nc
+	ld	hl,(exit_functions)
+	ex	de,hl
+	ld	(exit_functions),hl
+	ld	(hl),de
+	pop	de
+repeat 2
+ repeat long
+	inc	hl
+ end repeat
+	pop	bc
+	ld	(hl),bc
+end repeat
+	push	bc,bc
+	ex	de,hl
+	jp	(hl)
+
+	section	.rodata
+	private	exit_functions
+exit_functions rl 1
+
+	section	.rodata
+	private	init_functions
+init_functions:
+load functions: ___init_array_count * long from init_array: 0
+	dl	functions
+load functions: ___ctors_count * long from ctors: 0
+	dl	functions
+
+	section	.rodata
+	private	fini_functions
+load functions: ___dtors_count * long from dtors: 0
+	dl	functions
+load functions: ___fini_array_count * long from fini_array: 0
+	dl	functions
+fini_functions:
+
+	section	.header
+	db	$ef,$7b
+	db	$00		; C program identifier (nop)
+	require	start
+
+	section	.launcher
+launcher:
+	ld	hl,.libloadname
+	push	hl
+extern	_fs_GetFilePtr
+	call	_fs_GetFilePtr
+	pop	bc
+	jr	c,.notfound
+	ld	de,___libs	; start of relocation data
+	jp	(hl)		; jump to the loader -- it should take care of everything else
+.notfound:
+	ld	hl,.missingappvar
+extern	_gui_PrintLine
+	call	_gui_PrintLine
+	ld	hl,.webaddress
+	call	_gui_PrintLine
+extern	_sys_WaitKeyCycle
+	jq	_sys_WaitKeyCycle		; _getkey
+
+	section	.rodata
+	private	.missingappvar
+.missingappvar:
+	db	"Missing "
+	private	.libloadname
+.libloadname:
+	db	"/lib/LibLoad.dll"
+	private	.libloadnamelen
+.libloadnamelen := $-.libloadname
+	db	0
+	private	.webaddress
+.webaddress:
+	db	"vapor.cagstech.com",0
+	section .start
+
+mpTmr2Counter := 0F20010h
+mpTmrCtrl := 0F20030h
+
+bTmr2Enable := 3
+bTmr2Crystal := 4
+bTmr2Overflow := 5
+bTmr2CountUp := 10
+
+	public	___init_clock
+___init_clock:
+; Disable the timer and configure it to use the 32768Hz crystal timer, not
+; generate an interurrupt on overflow, and count up.
+assert bTmr2CountUp / 8 = 1
+	ld	hl, mpTmrCtrl + 1
+	set	bTmr2CountUp - 8, (hl)
+	dec	hl
+assert bTmr2Enable / 8 = 0
+	res	bTmr2Enable, (hl)
+assert bTmr2Crystal / 8 = 0
+	set	bTmr2Crystal, (hl)
+assert bTmr2Overflow / 8 = 0
+	res	bTmr2Overflow, (hl)
+; Set the counter to zero.
+assert mpTmrCtrl shr 8 = (mpTmr2Counter + 1) shr 8
+	ld	l, (mpTmr2Counter + 1) and $FF
+	ld	de, 0
+	ld	(hl), de
+	dec	hl
+	ld	(hl), e
+; Enable the timer.
+assert bTmr2Enable / 8 = 0
+assert mpTmr2Counter shr 8 = mpTmrCtrl shr 8
+	ld	l, mpTmrCtrl and $FF
+	set	bTmr2Enable, (hl)
+
+
+	section	.start
+	private	start
+start:
+	call	00004F4h	; _usb_DisableTimer
+	di			; disable interrupts
+	pop	bc,de	; de <- argument string
+	push	de,bc
+	ld	hl,0E00305h
+	push	hl		; save flash wait state control port
+	ld	a,(hl)
+	push	af		; save flash wait states
+	ld	(hl),h		; set flash wait states to 3; 1 was definitely
+				; too low for some calcs, 2 is untested
+	ld	(_exit.sp),sp	; save sp for exiting
+if defined ___main_argc_argv
+	ld	hl,($D00280) ; bos.ExecutingFileFD
+	push	de,hl
+extern	_fs_CopyFileName
+	call	_fs_CopyFileName	; get file name from running file descriptor
+	pop	bc,de
+	ld	bc,1
+	ld	a,(de)
+	or	a,a
+	jr	z,.doneargv
+	jr	.argvappend
+.argvloop:	; loop over argument string
+	inc de
+	ld	a,(de)
+	or	a,a
+	jr	z,.doneargv
+	cp	a,' '
+	jr	nz,.argvloop
+	xor	a,a
+	ld	(de),a
+.argvspacesloop:
+	inc	de
+	ld	a,(de)
+	cp	a,' '
+	jr	z,.argvspacesloop
+	or	a,a
+	jr	z,.doneargv
+.argvappend:
+	inc	bc
+	push	de
+	jr	.argvloop
+.doneargv:
+	push	hl	; push file name found earlier
+	sbc	hl,hl
+	add	hl,sp
+	push	hl		; char *argv[]
+	push	bc		; int argc
+end if
+if ___len_bss > 0
+if ___len_bss = 1
+	xor	a,a
+	ld	(___low_bss),a
+else if ___len_bss = 2
+	ld	hl,___low_bss
+	xor	a,a
+	ld	(hl),a
+	inc	hl
+	ld	(hl),a
+else if ___len_bss = 3
+	or	a,a
+	sbc	hl,hl
+	ld	(___low_bss),hl
+else
+	ld	hl,___low_bss
+	xor	a,a
+if ___len_bss < 256
+	ld	b,___len_bss
+	db	$0E		;ld	C,...
+end if
+if ___len_bss <= 257
+	ld	b,a
+.clearbssloop:
+	ld	(hl),a
+	inc	hl
+	djnz	.clearbssloop
+if ___len_bss = 257
+	ld	(hl),a
+end if
+else
+	ld	bc,___len_bss
+extern __MemClear
+	call	__MemClear
+end if
+end if
+end if
+
+.init_count := ___init_array_count + ___ctors_count
+if .init_count <= 21
+ repeat ___init_array_count
+  load function: long from init_array: (%-1) * long
+	call	function
+ end repeat
+ repeat ___ctors_count
+  load function: long from ctors: (%-1) * long
+	call	function
+ end repeat
+else
+	ld	ix,init_functions
+	ld	b,((.init_count-1) shr  0 and $FF)+1
+ if .init_count > $100
+	ld	c,((.init_count-1) shr  8 and $FF)+1
+  if .init_count > $10000
+	ld	a,((.init_count-1) shr 16 and $FF)+1
+  end if
+ end if
+.init_loop:
+	push	bc
+ if .init_count > $10000
+	push	af
+ end if
+	ld	hl,(ix)
+	lea	ix,ix+long
+	call	__indcallhl
+ if .init_count > $10000
+	pop	af
+ end if
+	pop	bc
+	djnz	.init_loop
+ if .init_count > $100
+	dec	c
+	jq	nz,.init_loop
+  if .init_count > $10000
+	dec	a
+	jq	nz,.init_loop
+  end if
+ end if
+end if
+
+	call	main
+if push_exit_code <> pop_exit_code
+	push	hl
+end if
+push_exit_code:
+	require	skip._exit
+
+	section	.start
+virtual
+	ld	a,0
+ load .ld_a: byte from $$
+end virtual
+	db	.ld_a
+
+	public	_exit
+_exit:
+	pop	hl
+
+	section	.start
+	private	skip._exit
+skip._exit:
+if defined exit_functions
+	jq	.function_enter
+.function_loop:
+	ld	hl,(ix+1+0*long)
+	ld	(exit_functions),hl
+	pop	hl
+	ld	de,(ix+1+2*long)
+	push	hl,de,hl
+	ld	hl,(ix+1+1*long)
+	push	hl,ix+1
+	call	_free
+	pop	bc,hl
+	call	__indcallhl
+	pop	bc,bc
+.function_enter:
+	ld	ix,(exit_functions)
+	ld	bc,-1
+	add	ix,bc
+	jq	c,.function_loop
+end if
+
+.fini_count := ___dtors_count + ___fini_array_count
+if .fini_count <= 21
+ repeat ___fini_array_count
+  load function: long from fini_array: (%%-%) * long
+	call	function
+ end repeat
+ repeat ___dtors_count
+  load function: long from dtors: (%%-%) * long
+	call	function
+ end repeat
+else
+	ld	ix,fini_functions
+	ld	b,((.fini_count-1) shr  0 and $FF)+1
+ if .fini_count > $100
+	ld	c,((.fini_count-1) shr  8 and $FF)+1
+  if .fini_count > $10000
+	ld	a,((.fini_count-1) shr 16 and $FF)+1
+  end if
+ end if
+.fini_loop:
+	push	bc
+ if .fini_count > $10000
+	push	af
+ end if
+	lea	ix,ix-long
+	ld	hl,(ix)
+	call	__indcallhl
+ if .fini_count > $10000
+	pop	af
+ end if
+	pop	bc
+	djnz	.fini_loop
+ if .fini_count > $100
+	dec	c
+	jq	nz,.fini_loop
+  if .fini_count > $10000
+	dec	a
+	jq	nz,.fini_loop
+  end if
+ end if
+end if
+	require	skip.__Exit
+
+	section	.start
+virtual
+	ld	a,0
+ load .ld_a: byte from $$
+end virtual
+	db	.ld_a
+
+	public	__Exit
+__Exit:
+	pop	hl
+
+	section	.start
+	private	skip.__Exit
+skip.__Exit:
+pop_exit_code:
+if push_exit_code <> pop_exit_code
+	pop	hl
+end if
+	require	skip._abort
+
+	section	.start
+virtual
+	ld	iy,0
+ load .iy_pre: byte from $$
+end virtual
+	db	.iy_pre
+
+	public	_abort
+_abort:
+	ld	hl,1 shl 23+6	; SIGABRT
+
+	section	.start
+	private	skip._abort
+skip._abort:
+	ld	sp,0
+_exit.sp := $-3
+	pop	af		; a = original flash wait states
+	ex	(sp),hl		; hl = flash wait state control port,
+				; save exit code
+	ld	(hl),a		; restore flash wait states
+	call	00004F0h	; _usb_ResetTimer
+
+	section	.cleanup
+	ld	a,1
+	ld	(0F00008h),a	; clear on interrupt
+	ld	hl,$D00089
+	res	4,(hl)	; onInterrupt,(iy+onFlags)
+	pop	hl		; hl = exit code
+	ret
+
+	section .init_array
+init_array::
+	section .ctors
+ctors::
+	section .dtors
+dtors::
+	section .fini_array
+fini_array::
+
+	extern	___ctors_count
+	extern	___dtors_count
+	extern	___fini_array_count
+	extern	___init_array_count
+	extern	___len_bss
+	extern	___libs
+	extern	___low_bss
+	extern	__indcallhl
+	extern	_free
+ifextern ___main_argc_argv
+	extern	___main_argc_argv
+	main := ___main_argc_argv
+else
+	extern	_main
+	main := _main
+end if
+	extern	_malloc

@@ -1,0 +1,115 @@
+	section	.text,"ax",@progbits
+	assume	adl = 1
+	section	.text,"ax",@progbits
+	public	__u_dtog
+__u_dtog:
+	ld	hl, -12
+	call	__frameset
+	ld	de, (ix + 6)
+	ld	a, (ix + 9)
+	pea	ix + -12
+	ld	l, a
+	push	hl
+	push	de
+	call	__u_flt_info
+	pop	hl
+	pop	hl
+	pop	hl
+	ld	a, (___print_fmt+6)
+	ld	e, a
+	ld	a, (___print_fmt+5)
+	ld	c, a
+	ld	a, (___print_fmt+1)
+	ld	l, a
+	ld	a, c
+	cp	a, 0
+	call	__setflag
+	jq	p, BB0_19
+	ld	a, l
+	or	a, 1
+	ld	l, a
+	ld	(___print_fmt+1), a
+	ld	a, c
+	neg
+	ld	(___print_fmt+5), a
+	jq	BB0_2
+BB0_19:
+BB0_2:
+	bit	3, l
+	jq	nz, BB0_4
+	ld	a, l
+	or	a, -128
+	ld	(___print_fmt+1), a
+BB0_4:
+	ld	a, e
+	cp	a, 1
+	call	__setflag
+	ld	l, e
+	jq	p, BB0_6
+	ld	l, 0
+BB0_6:
+	ld	a, e
+	cp	a, 1
+	call	__setflag
+	jq	m, BB0_7
+	jq	BB0_9
+BB0_7:
+	ld	l, 1
+BB0_9:
+	ld	e, (ix + -11)
+	ld	a, e
+	cp	a, -4
+	call	__setflag
+	ld	h, 1
+	ld	d, 0
+	ld	c, h
+	jq	p, BB0_11
+	ld	c, d
+BB0_11:
+	ld	a, e
+	cp	a, l
+	call	__setflag
+	jq	m, BB0_13
+	ld	h, d
+BB0_13:
+	ld	a, c
+	and	a, h
+	ld	c, a
+	ld	a, e
+	cpl
+	ld	e, a
+	bit	0, c
+	jq	nz, BB0_15
+	ld	e, -1
+BB0_15:
+	bit	0, c
+	jq	nz, BB0_16
+	ld	c, 101
+	jq	BB0_18
+BB0_16:
+	ld	c, 102
+BB0_18:
+	ld	a, l
+	add	a, e
+	ld	(___print_fmt+6), a
+	ld	a, c
+	ld	(___print_fmt+4), a
+	ld	a, (ix + 9)
+	ld	l, a
+	push	hl
+	ld	hl, (ix + 6)
+	push	hl
+	call	__u_dtof
+	ld	sp, ix
+	pop	ix
+	ret
+	section	.text,"ax",@progbits
+
+	ident	"clang version 12.0.0 (https://github.com/jacobly0/llvm-project f1906007dd73cb37b01d5860b542715ee76f2492)"
+	extern	__setflag
+	extern	__Unwind_SjLj_Register
+	extern	__Unwind_SjLj_Unregister
+	extern	__frameset
+	extern	__u_dtof
+	extern	___print_fmt
+	extern	__u_flt_info

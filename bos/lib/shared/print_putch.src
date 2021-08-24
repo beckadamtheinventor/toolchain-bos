@@ -1,0 +1,19 @@
+	section	.text,"ax",@progbits
+	assume	adl = 1
+	section	.text,"ax",@progbits
+	public	___print_putch
+___print_putch:
+	call	__frameset0
+	ld	a, (ix + 6)
+	ld	hl, (___print_xputch)
+	ld	e, a
+	ld	(ix + 6), de
+	pop	ix
+	jp	(hl)
+	section	.text,"ax",@progbits
+
+	ident	"clang version 12.0.0 (https://github.com/jacobly0/llvm-project f1906007dd73cb37b01d5860b542715ee76f2492)"
+	extern	___print_xputch
+	extern	__Unwind_SjLj_Register
+	extern	__Unwind_SjLj_Unregister
+	extern	__frameset0

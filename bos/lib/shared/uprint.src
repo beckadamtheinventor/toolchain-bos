@@ -1,0 +1,365 @@
+	section	.text,"ax",@progbits
+	assume	adl = 1
+	section	.text,"ax",@progbits
+	public	__u_print
+__u_print:
+	ld	hl, -9
+	call	__frameset
+	ld	hl, (ix + 6)
+	ld	iy, (ix + 9)
+	ld	de, (ix + 12)
+	xor	a, a
+	ld	bc, ___print_fmt
+	ld	(ix + -3), de
+	ld	(___print_len), a
+	ld	(___print_out), hl
+BB0_1:
+	ld	l, (iy)
+	ld	a, l
+	or	a, a
+	jq	z, BB0_35
+BB0_3:
+	ld	a, l
+	or	a, a
+	jq	z, BB0_39
+	ld	a, l
+	cp	a, 37
+	ld	(ix + -6), iy
+	jq	z, BB0_6
+	lea	de, iy + 0
+	ld	(ix + -9), de
+	ld	de, (ix + -9)
+	inc	de
+	ld	(ix + -9), de
+	push	hl
+	call	___print_putch
+	ld	bc, ___print_fmt
+	pop	hl
+	ld	hl, ___print_len
+	inc	(hl)
+	ld	iy, (ix + -6)
+	ld	a, (iy + 1)
+	ld	l, a
+	ld	iy, (ix + -9)
+	jq	BB0_3
+BB0_39:
+	jq	BB0_1
+BB0_6:
+	pea	ix + -3
+	push	bc
+	push	iy
+	call	__u_pscan
+	push	hl
+	pop	de
+	pop	hl
+	pop	hl
+	pop	hl
+	ld	a, (___print_fmt)
+	cp	a, 1
+	ld	(ix + -9), de
+	jq	z, BB0_8
+	cp	a, 2
+	jq	nz, BB0_12
+	ld	a, (___print_fmt+3)
+	ld	l, a
+	push	hl
+	call	___print_putch
+	pop	hl
+	ld	hl, ___print_len
+	inc	(hl)
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_12:
+	ld	a, (___print_fmt+4)
+	ld	l, a
+	rlc	l
+	sbc	hl, hl
+	push	hl
+	pop	iy
+	ld	iyl, a
+	lea	hl, iy + 0
+	ld	bc, 69
+	or	a, a
+	sbc	hl, bc
+	ld	bc, ___print_fmt
+	jq	z, BB0_25
+	lea	hl, iy + 0
+	ld	de, 71
+	or	a, a
+	sbc	hl, de
+	jq	nz, BB0_14
+BB0_25:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 6
+	ld	(ix + -3), hl
+	ld	hl, (iy)
+	ld	e, (iy + 3)
+	cp	a, 103
+	jq	nz, BB0_27
+	push	de
+	push	hl
+	call	__u_dtog
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_27:
+	push	de
+	push	hl
+	call	__u_dtof
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_14:
+	lea	hl, iy + 0
+	ld	de, 88
+	or	a, a
+	sbc	hl, de
+	jq	nz, BB0_15
+BB0_21:
+	ld	a, (___print_fmt+2)
+	cp	a, 76
+	jq	z, BB0_23
+	cp	a, 108
+	jq	nz, BB0_24
+BB0_23:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 6
+	ld	(ix + -3), hl
+	ld	hl, (iy)
+	ld	a, (iy + 3)
+	ld	e, a
+	push	de
+	push	hl
+	call	__u_ultoa
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_15:
+	lea	hl, iy + 0
+	ld	de, 99
+	or	a, a
+	sbc	hl, de
+	ld	(ix + -6), hl
+	ld	de, 22
+	or	a, a
+	sbc	hl, de
+	ld	iy, (ix + -9)
+	jq	nc, BB0_1
+	ld	hl, LJTI0_0
+	ld	de, (ix + -6)
+	add	hl, de
+	add	hl, de
+	add	hl, de
+	ld	hl, (hl)
+	ld	iy, (ix + -9)
+	jp	(hl)
+BB0_28:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 3
+	ld	(ix + -3), hl
+	ld	a, (iy)
+	ld	(___print_buff), a
+	xor	a, a
+	ld	(___print_buff+1), a
+	ld	hl, ___print_buff
+	push	hl
+	call	___print_sendstring
+	ld	bc, ___print_fmt
+	pop	hl
+	ld	iy, (ix + -9)
+	jq	BB0_1
+BB0_24:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 3
+	ld	(ix + -3), hl
+	ld	hl, (iy)
+	ld	de, 0
+	push	de
+	push	hl
+	call	__u_ultoa
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_17:
+	ld	a, (___print_fmt+2)
+	cp	a, 76
+	jq	z, BB0_19
+	cp	a, 108
+	jq	nz, BB0_20
+BB0_19:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 6
+	ld	(ix + -3), hl
+	ld	hl, (iy)
+	ld	a, (iy + 3)
+	ld	e, a
+	push	de
+	push	hl
+	call	__u_ltoa
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_31:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 3
+	ld	(ix + -3), hl
+	ld	iy, (iy)
+	ld	a, (___print_fmt+2)
+	cp	a, 76
+	jq	z, BB0_33
+	cp	a, 108
+	jq	nz, BB0_34
+BB0_33:
+	ld	a, (___print_len)
+	or	a, a
+	sbc	hl, hl
+	ld	l, a
+	xor	a, a
+	ld	(iy), hl
+	ld	(iy + 3), a
+	ld	iy, (ix + -9)
+	jq	BB0_1
+BB0_30:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 3
+	ld	(ix + -3), hl
+	ld	hl, (iy)
+	ld	de, 0
+	push	de
+	push	hl
+	call	__u_ultoa
+	ld	bc, ___print_fmt
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	jq	BB0_1
+BB0_29:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 3
+	ld	(ix + -3), hl
+	ld	hl, (iy)
+	push	hl
+	call	___print_sendstring
+	ld	bc, ___print_fmt
+	pop	hl
+	ld	iy, (ix + -9)
+	jq	BB0_1
+BB0_20:
+	ld	iy, (ix + -3)
+	lea	hl, iy + 3
+	ld	(ix + -3), hl
+	ld	de, (iy)
+	push	de
+	pop	hl
+	push	de
+	pop	iy
+	add	iy, iy
+	sbc	hl, hl
+	push	hl
+	push	de
+	call	__u_ltoa
+	pop	hl
+	pop	hl
+	ld	iy, (ix + -9)
+	ld	bc, ___print_fmt
+	jq	BB0_1
+BB0_34:
+	ld	a, (___print_len)
+	or	a, a
+	sbc	hl, hl
+	ld	l, a
+	ld	(iy), hl
+	ld	iy, (ix + -9)
+	jq	BB0_1
+BB0_35:
+	ld	hl, (___print_out)
+	add	hl, bc
+	or	a, a
+	sbc	hl, bc
+	jq	z, BB0_37
+	ld	(hl), 0
+BB0_37:
+	ld	a, (___print_len)
+	or	a, a
+	sbc	hl, hl
+	ld	l, a
+BB0_38:
+	ld	sp, ix
+	pop	ix
+	ret
+BB0_8:
+	ld	iy, (ix + -6)
+BB0_9:
+	lea	hl, iy + 0
+	or	a, a
+	sbc	hl, de
+	jq	nc, BB0_40
+	ld	a, (iy)
+	ld	l, a
+	push	hl
+	ld	(ix + -6), iy
+	call	___print_putch
+	ld	iy, (ix + -6)
+	ld	de, (ix + -9)
+	pop	hl
+	ld	hl, ___print_len
+	inc	(hl)
+	lea	iy, iy + 2
+	jq	BB0_9
+BB0_40:
+	ld	hl, -1
+	jq	BB0_38
+	section	.text,"ax",@progbits
+	section	.rodata,"a",@progbits
+lJTI0_0:
+	private	LJTI0_0
+LJTI0_0:
+	dl	BB0_28
+	dl	BB0_17
+	dl	BB0_25
+	dl	BB0_25
+	dl	BB0_25
+	dl	BB0_1
+	dl	BB0_17
+	dl	BB0_1
+	dl	BB0_1
+	dl	BB0_1
+	dl	BB0_1
+	dl	BB0_31
+	dl	BB0_21
+	dl	BB0_30
+	dl	BB0_1
+	dl	BB0_1
+	dl	BB0_29
+	dl	BB0_1
+	dl	BB0_21
+	dl	BB0_1
+	dl	BB0_1
+	dl	BB0_21
+
+	ident	"clang version 12.0.0 (https://github.com/jacobly0/llvm-project f1906007dd73cb37b01d5860b542715ee76f2492)"
+	extern	__Unwind_SjLj_Register
+	extern	__frameset
+	extern	___print_sendstring
+	extern	___print_fmt
+	extern	___print_buff
+	extern	___print_putch
+	extern	___print_out
+	extern	__Unwind_SjLj_Unregister
+	extern	__u_dtof
+	extern	__u_dtog
+	extern	__u_ltoa
+	extern	___print_len
+	extern	__u_ultoa
+	extern	__u_pscan
