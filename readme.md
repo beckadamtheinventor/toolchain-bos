@@ -1,16 +1,14 @@
-# CE C Programming Toolchain/SDK (BOS)
+# CE C Programming Toolchain/SDK (Files for BOS)
 The CE C Software Development Kit incorporates a wide variety of tools and documentation in order to build programs in C natively for the TI-84 Plus CE / TI-83 Premium CE calculators series.
 
 ## Important Note
 This toolchain requires the standard CE C toolchain to be installed.
-This is the *BOS* toolchain, and is not for use with calculators running TI-OS.
-Additionally, the examples folder has not been entirely refactored yet to work with BOS.
 
 ## Installation
-Copy the `bos` folder into your CEdev directory.
+Copy the `bos` folder into your CEdev directory, or run `make` from the repo's root directory.
 
 ## Getting Started
-See `makefile.bos` for makefile structure for use with this toolchain.
+See `makefile.bos` for makefile template.
 The [header documentation](https://ce-programming.github.io/toolchain/files.html) will let you know about the available libload functions.
 
 ## Sending binaries
