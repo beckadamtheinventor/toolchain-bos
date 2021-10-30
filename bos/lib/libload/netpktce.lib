@@ -1,0 +1,9 @@
+library	"NETPKTCE", 0
+	export	pl_SetDevice ; 0
+	export	pl_GetAsyncProcHandler ; 3
+	export	pl_InitSendQueue ; 6
+	export	pl_QueueSendPacketSegment ; 9
+	export	pl_SendPacket ; 12
+	export	pl_ReadPacket ; 15
+	export	pl_SetAsyncTimeout ; 18
+	export	pl_SetReadTimeout ; 21
