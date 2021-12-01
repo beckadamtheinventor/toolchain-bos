@@ -1,0 +1,9 @@
+
+	public _gui_DrawConsoleWindow
+	extern _asm_gui_DrawConsoleWindow
+
+_gui_DrawConsoleWindow:
+	pop de
+	ex (sp),hl
+	push de
+	jp _asm_gui_DrawConsoleWindow

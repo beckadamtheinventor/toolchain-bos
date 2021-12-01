@@ -1,0 +1,10 @@
+
+	public _gui_PrintChar
+	extern _asm_gui_PrintChar
+
+_gui_PrintChar:
+	pop de
+	ex (sp),hl
+	push de
+	ld a,l
+	jp _asm_gui_PrintChar

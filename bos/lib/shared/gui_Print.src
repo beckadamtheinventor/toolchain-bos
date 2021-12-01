@@ -1,0 +1,9 @@
+
+	public _gui_Print
+	extern _asm_gui_Print
+
+_gui_Print:
+	pop de
+	ex (sp),hl
+	push de
+	jp _asm_gui_Print

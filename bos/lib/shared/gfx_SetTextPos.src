@@ -1,0 +1,16 @@
+
+	public _bosgfx_SetTextPos
+
+_bosgfx_SetTextPos:
+	pop de
+	pop bc
+	ex (sp),hl
+	push bc
+	push de
+	ld b,l
+	ld hl,$D0022C
+	ld (hl),b
+	ld l,$27
+	ld (hl),c
+	ex de,hl
+	jp (hl)

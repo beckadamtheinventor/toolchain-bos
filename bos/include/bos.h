@@ -173,41 +173,31 @@ char *gui_Input(char *buffer, unsigned int len);
 /**
  * Clear the screen and print a line.
  */
-void gui_DrawConsoleWindow(const char *str) {
-	asm(" pop de\n ex (sp),hl\n push de\n jp $020174\n");
-}
+void gui_DrawConsoleWindow(const char *str);
 
 /**
  * Print a string to the screen advancing the current draw collumn, but not advancing the current line.
  * @param str Pointer to string to print.
  */
-void gui_Print(const char *str) {
-	asm(" pop de\n ex (sp),hl\n push de\n jp $020180\n");
-}
+void gui_Print(const char *str);
 
 /**
  * Print a character to the screen, advancing the current draw collumn.
  * @param str Pointer to string to print.
  */
-void gui_PrintChar(const char *str) {
-	asm(" pop de\n ex (sp),hl\n push de\n ld a,l\n jp $020290\n");
-}
+void gui_PrintChar(const char *str);
 
 /**
  * Print a string to the screen and advance the current draw line.
  * @param str Pointer to string to print.
  */
-void gui_PrintLine(const char *str) {
-	asm(" pop de\n ex (sp),hl\n push de\n jp $02029C\n");
-}
+void gui_PrintLine(const char *str);
 
 /**
  * Print an integer to the screen and advance the current draw collumn.
  * @param num integer to print.
  */
-void gui_PrintInt(int num) {
-	asm(" pop de\n ex (sp),hl\n push de\n jp $020184\n");
-}
+void gui_PrintInt(int num);
 
 /**
  * Blit the back buffer to the LCD.
@@ -218,18 +208,14 @@ void bosgfx_BlitBuffer(void);
  * Print a string to the current text draw position.
  * @param str Pointer to string to print.
  */
-void bosgfx_PrintString(const char *str) {
-	asm(" pop de\n ex (sp),hl\n push de\n jp $020190\n");
-}
+void bosgfx_PrintString(const char *str);
 
 /**
  * Set the text draw position to collumn, row
  * @param collumn zero indexed collumn number.
  * @param row zero indexed row number.
  */
-void bosgfx_SetTextPos(uint8_t collumn, uint8_t row) {
-	asm(" pop de\n pop bc\n ex (sp),hl\n push bc\n ld b,l\n ld hl,$D0022C\n ld (hl),b\n ld l,$27\n ld (hl),c\n ex de,hl\n jp (hl)\n");
-}
+void bosgfx_SetTextPos(uint8_t collumn, uint8_t row);
 
 /**
  * Scan the keypad and return a scan code.
