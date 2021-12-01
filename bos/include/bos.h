@@ -202,6 +202,14 @@ void gui_PrintLine(const char *str) {
 }
 
 /**
+ * Print an integer to the screen and advance the current draw collumn.
+ * @param num integer to print.
+ */
+void gui_PrintLine(int num) {
+	asm(" pop de\n ex (sp),hl\n push de\n jp $020184\n");
+}
+
+/**
  * Blit the back buffer to the LCD.
  */
 void bosgfx_BlitBuffer(void);
@@ -220,7 +228,7 @@ void bosgfx_PrintString(const char *str) {
  * @param row zero indexed row number.
  */
 void bosgfx_SetTextPos(uint8_t collumn, uint8_t row) {
-	asm(" pop hl\n pop de\n pop bc\n ld ($D0022C),c\n ld ($D00227),e\n jp (hl)\n");
+	asm(" pop de\n pop bc\n ex (sp),hl\n push bc\n ld b,l\n ld hl,$D0022C\n ld (hl),b\n ld l,$27\n ld (hl),c\n ex de,hl\n jp (hl)\n");
 }
 
 /**
