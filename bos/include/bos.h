@@ -205,7 +205,7 @@ void gui_PrintLine(const char *str) {
  * Print an integer to the screen and advance the current draw collumn.
  * @param num integer to print.
  */
-void gui_PrintLine(int num) {
+void gui_PrintInt(int num) {
 	asm(" pop de\n ex (sp),hl\n push de\n jp $020184\n");
 }
 
