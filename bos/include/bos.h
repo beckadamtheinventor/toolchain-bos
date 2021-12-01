@@ -189,8 +189,8 @@ void gui_Print(const char *str) {
  * Print a character to the screen, advancing the current draw collumn.
  * @param str Pointer to string to print.
  */
-void gui_Print(const char *str) {
-	asm(" pop de\n ex (sp),hl\n push de\n jp $020180\n");
+void gui_PrintChar(const char *str) {
+	asm(" pop de\n ex (sp),hl\n push de\n ld a,l\n jp $020290\n");
 }
 
 /**
