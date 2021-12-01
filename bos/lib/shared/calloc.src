@@ -10,19 +10,19 @@ _calloc:
 	push	de
 	call	__imulu
 	push	hl
-	call	_malloc
+	call	_sys_Malloc
 	add	hl,de
 	xor	a,a
 	sbc	hl,de
 	ld	e,a
 	push	de
 	push	hl
-	call	nz,_memset
+	call	nz,_sys_MemSet
 	pop	hl
 	pop	de
 	pop	bc
 	ret
 
 	extern	__imulu
-	extern	_malloc
-	extern	_memset
+	extern	_sys_Malloc
+	extern	_sys_MemSet

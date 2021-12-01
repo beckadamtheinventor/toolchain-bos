@@ -42,7 +42,7 @@ endif
 all: install
 
 install:
-	$(CPDIR) bos $(CEDEV)
+	$(CPDIR) bos $(call NATIVEPATH,$(CEDEV)/bos)
 
 .PHONY: all install
 
