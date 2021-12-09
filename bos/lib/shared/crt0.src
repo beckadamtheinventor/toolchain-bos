@@ -143,11 +143,6 @@ start:
 				; too low for some calcs, 2 is untested
 	ld	(_exit.sp),sp	; save sp for exiting
 if defined ___main_argc_argv
-	ld	hl,($D00280) ; bos.ExecutingFileFD
-	push	de,hl
-extern	_fs_CopyFileName
-	call	_fs_CopyFileName	; get file name from running file descriptor
-	pop	bc,de
 	ld	bc,1
 	ld	a,(de)
 	or	a,a
@@ -174,11 +169,41 @@ extern	_fs_CopyFileName
 	push	de
 	jr	.argvloop
 .doneargv:
-	push	hl	; push file name found earlier
-	sbc	hl,hl
-	add	hl,sp
-	push	hl		; char *argv[]
-	push	bc		; int argc
+	sbc hl,hl
+	add hl,bc
+	add hl,bc
+	add hl,bc
+	push bc,hl
+extern _sys_Malloc
+	call _sys_Malloc
+	push hl
+	ld	hl,($D00280) ; bos.ExecutingFileFD
+	push	hl
+extern	_fs_CopyFileName
+	call	_fs_CopyFileName	; get file name from running file descriptor
+	ex hl,de
+	pop	bc
+	pop hl ; char *argv[]
+	pop bc ; argc*3
+	pop bc	; int argc
+	ld (.argv_smc),hl
+	ld (.argc_smc),bc
+	db $3E ;dummify the following instruction
+.argv_copy_loop:
+	pop de
+	dec bc
+	ld (hl),de
+	inc hl
+	inc hl
+	inc hl
+	ld a,c
+	or a,b
+	jq nz,.argv_copy_loop
+	ld bc,0
+.argc_smc:=$-3
+	ld hl,0
+.argv_smc:=$-3
+	push hl,bc
 end if
 if ___len_bss > 0
 if ___len_bss = 1
