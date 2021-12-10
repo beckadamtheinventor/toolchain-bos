@@ -8,9 +8,9 @@ _bosgfx_SetTextPos:
 	push bc
 	push de
 	ld b,l
-	ld hl,$D0022C
+	ld hl,$D00595
 	ld (hl),b
-	ld l,$27
+	inc hl
 	ld (hl),c
 	ex de,hl
 	jp (hl)
