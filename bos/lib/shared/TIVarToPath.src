@@ -1,0 +1,16 @@
+
+public _TIVarToPath
+extern __OP1ToPath
+
+_TIVarToPath:
+	pop bc,de
+	ex (sp),hl
+	push de,bc
+	ld a,l
+	ld hl,$D005F8
+	ld (hl),a
+	inc hl
+	ex hl,de
+	ld bc,8
+	ldir
+	jp __OP1ToPath
