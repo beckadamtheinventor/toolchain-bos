@@ -1,0 +1,15 @@
+
+	public _bosgfx_SetTextFGColor
+
+_bosgfx_SetTextFGColor:
+	pop de
+	ex (sp),hl
+	ld bc,$D0268A
+	ld a,(bc)
+	ld h,a
+	ld a,l
+	ld (bc),a
+	ld a,h
+	ex hl,de
+	jp (hl)
+
