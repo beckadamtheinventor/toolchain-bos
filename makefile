@@ -35,10 +35,6 @@ QUOTE_ARG  = '$(subst ','\'',$1)'#'
 APPEND     = @echo $(call QUOTE_ARG,$1) >>$@
 endif
 
-ifndef CEDEV
-$(error CEDEV environment path variable is not set, you must install the standard CE C toolchain first.)
-endif
-
 all: install
 
 install:
