@@ -3,6 +3,7 @@ The CE C Software Development Kit incorporates a wide variety of tools and docum
 
 ## Important Note
 This extension requires the standard CE C toolchain to be installed.
+It also requires the environment variable `CEDEV` to be set to your CEdev installation folder.
 
 ## Installation
 Copy the `bos` folder into your CEdev directory, or run `make` from the repo's root directory.
