@@ -227,6 +227,14 @@ void bosgfx_BlitBuffer(void);
 void bosgfx_PrintString(const char *str);
 
 /**
+ * Print a string at x,y.
+ * @param str Pointer to string to print.
+ * @param x X coordinate to print at.
+ * @param y Y coordinate to print at.
+ */
+void bosgfx_PrintStringXY(const char *str, int x, uint8_t y);
+
+/**
  * Set the text draw position to collumn, row
  * @param collumn zero indexed collumn number.
  * @param row zero indexed row number.
@@ -565,23 +573,6 @@ void bosgfx_SetDefaultFont(void);
  * @param loc 0 draws from vRam, 1 draws from vRam buffer
  */
 void bosgfx_SetDraw(uint8_t loc);
-
-/**
- * Write data to flash using vRam as swap space
- * @param dest Destination to write data.
- * @param src Data to write.
- * @param len Length of data to write.
- * @return True if success, false if failed.
- */
-bool sys_WriteFlashFullRam(void *dest, void *src, int len);
-
-/**
- * Write a byte to flash using vRam as swap space
- * @param dest Destination to write byte.
- * @param byte Byte to write.
- * @return True if success, false if failed.
- */
-bool sys_WriteFlashByteFullRam(void *dest, uint8_t byte);
 
 /**
  * Turn off the calculator until the user presses the [ON] key
