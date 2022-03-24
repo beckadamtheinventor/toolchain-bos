@@ -20,10 +20,15 @@ ICON ?=
 DESCRIPTION ?=
 COMPRESSED ?= NO
 ARCHIVED ?= NO
+BOS_APP ?= NO
 BSSHEAP_LOW ?= D031F6
 BSSHEAP_HIGH ?= D10000
 STACK_HIGH ?= D1A87E
+ifeq ($(BOS_APP),YES)
+INIT_LOC ?= 0
+else
 INIT_LOC ?= D1A881
+endif
 OUTPUT_MAP ?= YES
 CFLAGS ?= -Wall -Wextra -Oz
 CXXFLAGS ?= -Wall -Wextra -Oz
@@ -108,6 +113,9 @@ TARGETMAP ?= $(NAME).map
 ICONIMG := $(wildcard $(call NATIVEPATH,$(ICON)))
 
 # startup routines
+ifeq ($(BOS_APP),YES)
+LDFLAGS += -d BOS_APP
+endif
 LDCRT0 ?= $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/lib/shared/crt0.src)
 
 # source: http://blog.jgc.org/2011/07/gnu-make-recursive-wildcard-function.html
@@ -227,6 +235,11 @@ $(BINDIR)/$(TARGETBIN): $(LDFILES) $(ICONSRC) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)$(call MKDIR,$(@D))
 	$(Q)echo [linking] $(call NATIVEPATH,$@)
 	$(Q)$(FASMGLD) $(FASMGFLAGS) $(call NATIVEPATH,$@)
+ifeq ($(COMPRESSED),YES)
+	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -c zx7
+	$(Q)$(FASMGLD) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/lib/compressed_rex.asm) $(call NATIVEPATH,$@) \
+		-i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7))
+endif
 	$(Q)echo [success] $(TARGETBIN)
 
 ifneq ($(ICONSRC),)

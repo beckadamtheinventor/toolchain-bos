@@ -54,7 +54,14 @@ load functions: ___fini_array_count * long from fini_array: 0
 fini_functions:
 
 	section	.header
-	db	$18,$05,"REX",0,0 ; BOS Ram Executable header, C program identifier byte (nop)
+if defined BOS_APP
+extern flash_executable
+	flash_executable ; BOS Flash Executable header (the macro also handles relocation)
+else
+extern ram_executable
+	ram_executable ; BOS Ram Executable header
+end if
+	db 0 ; C program identifier byte (nop)
 	require	start
 
 	section	.launcher
