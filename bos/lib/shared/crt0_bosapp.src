@@ -1,3 +1,0 @@
-
-BOS_APP:
-include 'crt0.src'
