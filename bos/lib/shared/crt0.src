@@ -58,8 +58,9 @@ if defined BOS_APP
 extern flash_executable
 	flash_executable ; BOS Flash Executable header (the macro also handles relocation)
 else
-extern ram_executable
-	ram_executable ; BOS Ram Executable header
+;extern ram_executable
+;	ram_executable
+	db $18,$03,"REX" ; BOS Ram Executable header
 end if
 	db 0 ; C program identifier byte (nop)
 	require	start

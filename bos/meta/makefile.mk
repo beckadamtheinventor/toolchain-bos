@@ -114,7 +114,7 @@ ICONIMG := $(wildcard $(call NATIVEPATH,$(ICON)))
 
 # startup routines
 ifeq ($(BOS_APP),YES)
-LDFLAGS += -d BOS_APP
+LDFLAGS += -i $(call QUOTE_ARG,BOS_APP:)
 endif
 LDCRT0 ?= $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/lib/shared/crt0.src)
 
