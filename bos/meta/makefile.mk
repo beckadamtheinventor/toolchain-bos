@@ -236,9 +236,9 @@ $(BINDIR)/$(TARGETBIN): $(LDFILES) $(ICONSRC) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)echo [linking] $(call NATIVEPATH,$@)
 	$(Q)$(FASMGLD) $(FASMGFLAGS) $(call NATIVEPATH,$@)
 ifeq ($(COMPRESSED),YES)
+	$(Q)echo [compressing] $(call NATIVEPATH,$@.zx7)
 	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -c zx7
-	$(Q)$(FASMGLD) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/lib/compressed_rex.asm) $(call NATIVEPATH,$@) \
-		-i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7))
+	$(Q)$(FASMGLD) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
 endif
 	$(Q)echo [success] $(TARGETBIN)
 
@@ -260,8 +260,8 @@ $(OBJDIR)/%.cpp.src: $(SRCDIR)/%.cpp $(USERHEADERS) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)echo [compiling] $(call NATIVEPATH,$<)
 	$(Q)$(CC) -S $(EZCXXFLAGS) $(call QUOTE_ARG,$(addprefix $(CURDIR)/,$<)) -o $(call QUOTE_ARG,$(addprefix $(CURDIR)/,$@))
 
+#$(Q)$(call RM,$(EXTRA_CLEAN))
 clean:
-	$(Q)$(call RM,$(EXTRA_CLEAN))
 	$(Q)$(call RMDIR,$(OBJDIR) $(BINDIR))
 	$(Q)echo Removed built objects and binaries.
 
