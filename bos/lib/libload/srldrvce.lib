@@ -4,11 +4,4 @@ library	"SRLDRVCE", 0
 	export	srl_Read ; 6
 	export	srl_Write ; 9
 	export	srl_GetCDCStandardDescriptors ; 12
-	export	get_device_type_ ; 15
-	export	get_endpoint_addresses_ ; 18
-	export	ring_buf_contig_avail_ ; 21
-	export	ring_buf_has_consecutive_region_ ; 24
-	export	ring_buf_push_ ; 27
-	export	ring_buf_pop_ ; 30
-	export	ring_buf_update_read_ ; 33
-	export	ring_buf_update_write_ ; 36
+	export	srl_UsbEventCallback ; 15

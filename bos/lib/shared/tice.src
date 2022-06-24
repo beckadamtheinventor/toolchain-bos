@@ -229,8 +229,7 @@ _os_SetCursorPos                := __SetCursorPos
 ; _os_AppInit                     := 021D40h
 _os_GetKey                      := _sys_WaitKeyCycle
 	extern _sys_WaitKeyCycle
-_os_GetCSC                      := _sys_GetKey
-	extern _sys_GetKey
+_os_GetCSC                      := 02014Ch
 ; _os_DisableCursor               := 021DE4h
 ; _os_EnableCursor                := 021DE8h
 ; _os_FontDrawText                := 021E00h
