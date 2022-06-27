@@ -1,4 +1,4 @@
-library	"USBDRVCE", 0
+library	USBDRVCE, 0
 	export	usb_Init ; 0
 	export	usb_Cleanup ; 3
 	export	usb_PollTransfers ; 6

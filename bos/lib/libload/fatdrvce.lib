@@ -1,4 +1,4 @@
-library	"FATDRVCE", 1
+library	FATDRVCE, 1
 	export	fat_Init ; 0
 	export	fat_Deinit ; 3
 	export	fat_DirList ; 6

@@ -1,3 +1,0 @@
-	public _malloc
-	extern _sys_Malloc
-_malloc := _sys_Malloc

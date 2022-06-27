@@ -1,37 +1,38 @@
-library	"FILEIOC", 7
-	export	ti_CloseAll ; 0
-	export	ti_Open ; 3
-	export	ti_OpenVar ; 6
-	export	ti_Close ; 9
-	export	ti_Write ; 12
-	export	ti_Read ; 15
-	export	ti_GetC ; 18
-	export	ti_PutC ; 21
-	export	ti_Delete ; 24
-	export	ti_DeleteVar ; 27
-	export	ti_Seek ; 30
-	export	ti_Resize ; 33
-	export	ti_IsArchived ; 36
-	export	ti_SetArchiveStatus ; 39
-	export	ti_Tell ; 42
-	export	ti_Rewind ; 45
-	export	ti_GetSize ; 48
-	export	ti_GetTokenString ; 51
-	export	ti_GetDataPtr ; 54
-	export	ti_Detect ; 57
-	export	ti_DetectVar ; 60
-	export	ti_SetVar ; 63
-	export	ti_StoVar ; 66
-	export	ti_RclVar ; 69
-	export	ti_AllocString ; 72
-	export	ti_AllocList ; 75
-	export	ti_AllocMatrix ; 78
-	export	ti_AllocCplxList ; 81
-	export	ti_AllocEqu ; 84
-	export	ti_DetectAny ; 87
-	export	ti_GetVATPtr ; 90
-	export	ti_GetName ; 93
-	export	ti_Rename ; 96
-	export	ti_RenameVar ; 99
-	export	ti_ArchiveHasRoom ; 102
-	export	ti_SetGCBehavior ; 105
+	library	FILEIOC, 7
+
+	export	ti_CloseAll
+	export	ti_Open
+	export	ti_OpenVar
+	export	ti_Close
+	export	ti_Write
+	export	ti_Read
+	export	ti_GetC
+	export	ti_PutC
+	export	ti_Delete
+	export	ti_DeleteVar
+	export	ti_Seek
+	export	ti_Resize
+	export	ti_IsArchived
+	export	ti_SetArchiveStatus
+	export	ti_Tell
+	export	ti_Rewind
+	export	ti_GetSize
+	export	ti_GetTokenString
+	export	ti_GetDataPtr
+	export	ti_Detect
+	export	ti_DetectVar
+	export	ti_SetVar
+	export	ti_StoVar
+	export	ti_RclVar
+	export	ti_AllocString
+	export	ti_AllocList
+	export	ti_AllocMatrix
+	export	ti_AllocCplxList
+	export	ti_AllocEqu
+	export	ti_DetectAny
+	export	ti_GetVATPtr
+	export	ti_GetName
+	export	ti_Rename
+	export	ti_RenameVar
+	export	ti_ArchiveHasRoom
+	export	ti_SetGCBehavior

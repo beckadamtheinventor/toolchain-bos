@@ -1,0 +1,6 @@
+	assume	adl=1
+
+	section	.text
+	public	_zx7_Decompress
+_zx7_Decompress:=util_Zx7Decompress
+

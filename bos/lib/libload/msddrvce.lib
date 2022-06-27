@@ -1,4 +1,4 @@
-library	"MSDDRVCE", 1
+library	MSDDRVCE, 1
 	export	msd_Open ; 0
 	export	msd_Close ; 3
 	export	msd_Reset ; 6

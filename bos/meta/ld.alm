@@ -20,6 +20,7 @@ macro ?! $              : $              , \
          iterate        : iterate        , \
          load           : load           , \
          macro          : macro          , \
+         match          : match          , \
          namespace      : namespace      , \
          or             : or             , \
          rawmatch       : rawmatch       , \
@@ -28,10 +29,11 @@ macro ?! $              : $              , \
          virtual        : virtual        , \
          word           : word
 	local script, noscript, read, required, cfi, lines, locs, addrs,     \
-	      makesection, sections, declared, globals, publics, splitfiles, \
-	      libraries, sources, offset, defers, output
-	element noscript
-	offset = noscript
+	      nosection, makesection, sections, declared, globals, publics,  \
+	      splitfiles, libraries, sources, offset, defers, output
+	noscript := 1
+	element nosection
+	offset = nosection
 
 	include 'commands.alm'
 	include 'ez80.alm'
@@ -184,17 +186,21 @@ macro ?! $              : $              , \
 	end calminstruction
 
 	iterate <name*,list*>, library,libraries, source,sources
+		list.count = 0
 		calminstruction script.name files&
-			proxy list, file
+			once arrange @list, list
+			once arrange @count, list.count
+			local count
 			match , files
 			jyes done
+			compute count, @count
 		loop:
 			split file, files
-			compute file, file
-			publish :@#list, file
+			publish :@list, file
+			compute count, count + 1
 			jyes loop
+			publish @count, count
 		done:
-			exit
 		end calminstruction
 	end iterate
 
@@ -252,11 +258,16 @@ macro ?! $              : $              , \
 		check symbol
 	end calminstruction
 
-	calminstruction read?! file*
-		proxy include
-		match ., file
-		jno ignore
-		execute @include! file
+	calminstruction read? file*, enabled: 1
+		proxy if, include, end
+		check enabled
+		jyes enabled1
+		execute @if? enabled
+	enabled1:
+		execute 	@include?! file
+		jyes enabled2
+		execute @end? @if?
+	enabled2:
 	ignore:
 	end calminstruction
 
@@ -304,6 +315,10 @@ macro ?! $              : $              , \
 		jno iter
 	end calminstruction
 
+	calminstruction nosection
+		next required
+	end calminstruction
+
 	calminstruction section?! name*, flags&
 		proxy sections
 		local string
@@ -322,8 +337,11 @@ macro ?! $              : $              , \
 
 	calminstruction ident?! comment*
 		proxy comment
+		check defined sections..comment
+		jno skip
 		execute =section? .=comment
 		execute =emit? =byte?: @comment, 0
+	skip:
 	end calminstruction
 
 	calminstruction public?! symbols*&
@@ -364,6 +382,8 @@ macro ?! $              : $              , \
 		arrange public, @publics.symbol
 		check definite global | defined public
 		jno required
+		check defined required
+		jyes notrequired
 		compute global, global
 		publish symbol:, global
 		jump notrequired
@@ -920,6 +940,7 @@ macro ?! $              : $              , \
 		check numfiles
 		jyes dirnoloop
 
+		execute =section? .=debug_line
 		arrange numfiles, lines.=numfiles
 		compute cur, 0
 		arrange @len, lines.=len
@@ -1183,12 +1204,9 @@ macro ?! $              : $              , \
 		end if
 
 		namespace ?%
-			if 0
-				virtual
-					section .text
+			if 1
+				virtual at nosection
 					read source
-
-					section .debug_line
 					output.debug_line
 				end virtual
 			end if
@@ -1199,18 +1217,44 @@ macro ?! $              : $              , \
 				lines.%.after := $
 			end virtual
 		end if
+
+		nosection
 	end irpv
 
-	if definite libraries and sections..libs?
+	if libraries.count
 		namespace libraries
+			flags equ
 			calminstruction library?! name*, version*
-				proxy defers
+				proxy globals, libraries, defers
 				next required
-				local defer
+				local symbol, @any, global, ignore, type, @name, defer
 				compute offset, 0
-				check defined required
+				arrange symbol, =lib.name
+				arrange @any, @libraries.=anyoptional
+				arrange global, @globals.symbol
+				match ignore? =neveroptional? ignore?, flags.
+				jyes required
+				match ignore? =optional? ignore?, flags.
+				jno detectoptional
+				publish @any, offset
+				jump optional
+			detectoptional:
+				check ~defined @any & used global
+				jyes optional
+			required:
+				compute type, $C0
+				jump typed
+			optional:
+				compute type, $C1
+			typed:
+				check used global | defined required
 				jno unused
-				arrange defer, =emit =byte?: $C0, name, 0, version
+				stringify name
+				arrange @name, required.=name
+				publish @name:, name
+				arrange defer, =public? symbol
+				publish :@defers, defer
+				arrange defer, symbol =emit =byte?: type, @name, 0, version
 				publish :@defers, defer
 			unused:
 			end calminstruction
@@ -1218,16 +1262,17 @@ macro ?! $              : $              , \
 			iterate name, export, export_pointer
 				calminstruction name?! symbol*
 					proxy globals, defers
-					local global, defer
+					local global, type, defer
 					arrange symbol, =_#symbol
 					arrange global, @globals.symbol
 					check used global
 					jno unused
-					arrange defer, =public symbol
+					compute type, % - 1
+					arrange defer, =public? symbol
 					publish :@defers, defer
-					arrange defer, symbol :== =$ + %-1
+					arrange defer, symbol :== =$ + type
 					publish :@defers, defer
-					arrange defer, =jp offset
+					arrange defer, =jp? offset
 					publish :@defers, defer
 					check definite required
 					jyes unused
@@ -1238,16 +1283,14 @@ macro ?! $              : $              , \
 			end iterate
 
 			irpv library, libraries
-				if 0
-					read library
-				end if
+				match file @flags, library @flags
+					flags. equ @flags
+					read file, 0
+				end match
 			end irpv
 		end namespace
 
-		calminstruction ?!
-			next required
-			execute =purge? ?
-		end calminstruction
+		nosection
 
 		namespace ?0
 			virtual sections..libs?.area?

@@ -1,4 +1,4 @@
-library	"SRLDRVCE", 0
+library	SRLDRVCE, 0
 	export	srl_Open ; 0
 	export	srl_Close ; 3
 	export	srl_Read ; 6
