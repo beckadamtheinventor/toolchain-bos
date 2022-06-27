@@ -36,8 +36,8 @@ CXXFLAGS ?= -Wall -Wextra -Oz
 LTOFLAGS ?= $(CFLAGS)
 LTO ?= YES
 SRCDIR ?= src
-OBJDIR ?= obj
-BINDIR ?= bin
+OBJDIR ?= bosobj
+BINDIR ?= bosbin
 GFXDIR ?= src/gfx
 CPP_EXTENSION = cpp
 C_EXTENSION = c
@@ -128,7 +128,6 @@ GFXDIR := $(call NATIVEPATH,$(GFXDIR))
 # generate default names
 TARGETBIN ?= $(NAME).bin
 TARGETMAP ?= $(NAME).map
-TARGET8XP ?= $(NAME).8xp
 ICONIMG := $(wildcard $(call NATIVEPATH,$(ICON)))
 
 # startup routines
@@ -204,21 +203,6 @@ ifneq ($(wildcard $(GFXDIR)/.),)
 MAKE_GFX ?= cd $(GFXDIR) && $(CONVIMG)
 endif
 
-# determine output target flags
-ifeq ($(ARCHIVED),YES)
-CONVBINFLAGS += -r
-endif
-ifeq ($(COMPRESSED),YES)
-CONVBINFLAGS += -e $(COMPRESSED_MODE)
-CONVBINFLAGS += -k 8xp-compressed
-else
-CONVBINFLAGS += -k 8xp
-endif
-ifeq ($(HAS_UPPERCASE_NAME),YES)
-CONVBINFLAGS += -u
-endif
-CONVBINFLAGS += -n $(NAME)
-
 # output debug map file
 ifeq ($(OUTPUT_MAP),YES)
 LDMAPFLAG := -i map
@@ -273,17 +257,13 @@ FASMGFLAGS = \
 .PHONY: all clean version gfx debug
 
 # this rule is trigged to build everything
-all: $(BINDIR)/$(TARGET8XP)
+all: $(BINDIR)/$(TARGETBIN)
 
 # this rule is trigged to build debug everything
 debug: DEBUGMODE = DEBUG
 debug: LDDEBUG = 1
 debug: CCDEBUG = -gdwarf-5 -g3
-debug: $(BINDIR)/$(TARGET8XP)
-
-$(BINDIR)/$(TARGET8XP): $(BINDIR)/$(TARGETBIN) $(MAKEFILE_LIST) $(DEPS)
-	$(Q)$(call MKDIR,$(@D))
-	$(Q)$(CONVBIN) $(CONVBINFLAGS) -i $(call QUOTE_ARG,$(call NATIVEPATH,$<)) -o $(call QUOTE_ARG,$(call NATIVEPATH,$@))
+debug: $(BINDIR)/$(TARGETBIN)
 
 $(BINDIR)/$(TARGETBIN): $(LDFILES) $(ICONSRC) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)$(call MKDIR,$(@D))
@@ -291,7 +271,7 @@ $(BINDIR)/$(TARGETBIN): $(LDFILES) $(ICONSRC) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)$(FASMG) $(FASMGFLAGS) $(call NATIVEPATH,$@)
 ifeq ($(COMPRESSED),YES)
 	$(Q)echo [compressing] $(call NATIVEPATH,$@.zx7)
-	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -c zx7
+	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -e zx7
 	$(Q)$(FASMGLD) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
 endif
 ifneq ($(ICONSRC),)

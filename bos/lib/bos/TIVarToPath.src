@@ -1,4 +1,7 @@
 
+	assume	adl=1
+	section	.text
+
 public _TIVarToPath
 extern __OP1ToPath
 

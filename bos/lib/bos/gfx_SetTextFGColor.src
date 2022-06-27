@@ -1,4 +1,7 @@
 
+	assume	adl=1
+	section	.text
+
 	public _bosgfx_SetTextFGColor
 
 _bosgfx_SetTextFGColor:

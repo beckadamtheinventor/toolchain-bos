@@ -1,4 +1,7 @@
 
+	assume	adl=1
+	section	.text
+
 	public _gui_DrawConsoleWindow
 	extern _asm_gui_DrawConsoleWindow
 

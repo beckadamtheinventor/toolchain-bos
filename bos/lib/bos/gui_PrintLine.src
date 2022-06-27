@@ -1,4 +1,7 @@
 
+	assume	adl=1
+	section	.text
+
 	public _gui_PrintLine
 	extern _asm_gui_PrintLine
 
