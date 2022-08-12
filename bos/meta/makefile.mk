@@ -82,7 +82,7 @@ Q =
 FASMG_V := -v$(V)
 endif
 
-BIN ?= $(CEDEV_TOOLCHAIN)/bin
+BIN ?= $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/bin)
 # get the os specific items
 ifeq ($(OS),Windows_NT)
 SHELL = cmd.exe
@@ -271,8 +271,8 @@ $(BINDIR)/$(TARGETBIN): $(LDFILES) $(ICONSRC) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)$(FASMG) $(FASMGFLAGS) $(call NATIVEPATH,$@)
 ifeq ($(COMPRESSED),YES)
 	$(Q)echo [compressing] $(call NATIVEPATH,$@.zx7)
-	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -e zx7
-	$(Q)$(FASMGLD) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
+	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -c zx7
+	$(Q)$(FASMG) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
 endif
 ifneq ($(ICONSRC),)
 $(ICONSRC): $(ICONIMG) $(MAKEFILE_LIST) $(DEPS)
