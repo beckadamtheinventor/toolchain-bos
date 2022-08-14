@@ -107,7 +107,7 @@ extern	_sys_WaitKeyCycle
 	db	0
 	private	.webaddress
 .webaddress:
-	db	"vapor.cagstech.com",0
+	db	"bpm.abeck.pw",0
 
 	section .start
 
