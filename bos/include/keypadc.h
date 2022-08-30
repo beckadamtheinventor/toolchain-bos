@@ -27,7 +27,7 @@ void kb_Scan(void);
 
 /**
  * Scans the given keyboard row and returns the row value.
- * @param row Row to scan.
+ * @param[in] row Row to scan.
  * @note Disables interrupts.
  */
 kb_key_t kb_ScanGroup(uint8_t row);
@@ -91,42 +91,52 @@ typedef enum {
 /**
  * Keypad Data registers
  *
- * \verbatim embed:rst:leading-asterisk
+ * \rst
  *
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | Offset | Bit 0      | Bit 1      | Bit 2      | Bit 3      |  Bit 4     |  Bit 5     |  Bit 6     | Bit 7      |
  * +========+============+============+============+============+============+============+============+============+
  * | 1      | kb_Graph   | kb_Trace   | kb_Zoom    | kb_Window  | kb_Yequ    | kb_2nd     | kb_Mode    | kb_Del     |
+ * |        |            |            |            |            |            |            |            |            |
+ * |        |            |            |            | kb_Fenetre | kb_Fx      |            |            | kb_Suppr   |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | 2      |            | kb_Sto     | kb_Ln      | kb_Log     | kb_Square  | kb_Recip   | kb_Math    | kb_Alpha   |
+ * |        |            |            |            |            |            |            |            |            |
+ * |        |            |            |            |            |            | kb_TglExact|            |            |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | 3      | kb_0       | kb_1       | kb_4       | kb_7       | kb_Comma   | kb_Sin     | kb_Apps    | kb_GraphVar|
+ * |        |            |            |            |            |            |            |            |            |
+ * |        |            |            |            |            |            | kb_Trig    | kb_Matrice |            |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | 4      | kb_DecPnt  | kb_2       | kb_5       | kb_8       | kb_LParen  | kb_Cos     | kb_Prgm    | kb_Stat    |
+ * |        |            |            |            |            |            |            |            |            |
+ * |        |            |            |            |            |            | kb_Resol   |            |            |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | 5      | kb_Chs     | kb_3       | kb_6       | kb_9       | kb_RParen  | kb_Tan     | kb_Vars    |            |
+ * |        |            |            |            |            |            |            |            |            |
+ * |        |            |            |            |            |            | kb_Frac    |            |            |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | 6      | kb_Enter   | kb_Add     | kb_Sub     | kb_Mul     | kb_Div     | kb_Power   | kb_Clear   |            |
+ * |        |            |            |            |            |            |            |            |            |
+ * |        |            |            |            |            |            |            | kb_Annul   |            |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  * | 7      | kb_Down    | kb_Left    | kb_Right   | kb_Up      |            |            |            |            |
  * +--------+------------+------------+------------+------------+------------+------------+------------+------------+
  *
- * \endverbatim
- * 
+ * \endrst
+ *
  * These data registers can be indexed as a normal array. For example, to check the status of the '2nd' key:
- * @code
+ * @code{.cpp}
  *  if (kb_Data[1] & kb_2nd) {
  *      ...
  *  }
  * @endcode
  *
  * Likewise, you can test keys with the following general format:
- * @code
+ * @code{.cpp}
  *  if (kb_Data[group] & kb_Name){
  *      ...
  *  }
- *
- *
  * @endcode
  *
  * @see kb_On
@@ -139,7 +149,7 @@ typedef enum {
  * @note Scanning mode does not matter.
  * @note The ON key is not wired as part of the normal key matrix. The ON key must be checked separately from the
  * other keys with kb_On:
- * @code
+ * @code{.cpp}
  *  int main(void) {
  *      kb_DisableOnLatch();
  *      ...
@@ -361,7 +371,7 @@ typedef enum {
 #define kb_KeyPower    ((kb_lkey_t)(6 << 8 | 1<<5))
 #define kb_KeyClear    ((kb_lkey_t)(6 << 8 | 1<<6))
 
-/* Keyboard group 5 - 83 Premium CE key names */
+/* Keyboard group 6 - 83 Premium CE key names */
 #define kb_KeyAnnul    kb_KeyClear
 
 /* Keyboard group 7 */
