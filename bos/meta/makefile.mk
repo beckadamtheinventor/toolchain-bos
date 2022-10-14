@@ -272,7 +272,7 @@ $(BINDIR)/$(TARGETBIN): $(LDFILES) $(ICONSRC) $(MAKEFILE_LIST) $(DEPS)
 ifeq ($(COMPRESSED),YES)
 	$(Q)echo [compressing] $(call NATIVEPATH,$@.zx7)
 	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -c zx7
-	$(Q)$(FASMG) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
+	$(Q)$(FASMG) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@)) -i $(call QUOTE_ARG,COMPRESSED_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
 endif
 ifneq ($(ICONSRC),)
 $(ICONSRC): $(ICONIMG) $(MAKEFILE_LIST) $(DEPS)
