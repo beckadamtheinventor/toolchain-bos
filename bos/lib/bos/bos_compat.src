@@ -1,0 +1,4 @@
+
+public _fs_WriteRaw
+extern _fs_WriteDirectly
+_fs_WriteRaw := _fs_WriteDirectly

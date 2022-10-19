@@ -2,5 +2,6 @@
 
 	section	.text
 	public	_zx7_Decompress
-_zx7_Decompress:=util_Zx7Decompress
+	extern	_util_Zx7Decompress
+_zx7_Decompress:=_util_Zx7Decompress
 

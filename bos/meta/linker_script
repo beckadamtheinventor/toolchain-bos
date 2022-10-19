@@ -221,6 +221,7 @@ source "..\\lib\\ce\\zx0.src"
 source "..\\lib\\ce\\zx7.src" 
 
 source "..\\lib\\bos\\bos.src"
+source "..\\lib\\bos\\bos_compat.src"
 source "..\\lib\\bos\\gfx_SetTextBGColor.src"
 source "..\\lib\\bos\\gfx_SetTextFGColor.src"
 source "..\\lib\\bos\\gfx_SetTextPos.src"
