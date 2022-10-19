@@ -5,12 +5,51 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef struct __filesystem_device_t__ {
+	uint8_t flags;
+	uint8_t unused[3];
+	// Called by the OS to open a file within this device as a filesystem.
+	uint8_t fs_OpenFileJP;
+	void *(*fs_OpenFile)(char *path);
+	// Called by the OS to create a file within this device as a filesystem.
+	uint8_t fs_CreateFileJP;
+	void *(*fs_CreateFile)(char *path, int flags);
+	// Called by the OS to delete a file within this device as a filesystem.
+	uint8_t fs_DeleteFileJP;
+	void *(*fs_DeleteFile)(char *path);
+	// Called by the OS to read from a file within this device as a filesystem. Data is a physical address where data is read into.
+	uint8_t fs_ReadJP;
+	unsigned int (*fs_Read)(void *data, unsigned int len, uint8_t count, void *fd);
+	// Called by the OS to write to a file within this device as a filesystem. Data is a physical address where data is written from.
+	uint8_t fs_WriteJP;
+	unsigned int (*fs_Write)(void *data, unsigned int len, uint8_t count, void *fd);
+} filesystem_device_t;
+
 typedef struct __device_t__ {
 	uint8_t header;
 	uint8_t flags;
 	uint8_t type;
 	uint8_t version;
-	
+	uint8_t intSource;
+	filesystem_device_t *fs;
+	// Initialize the device.
+	uint8_t initjp;
+	uint8_t (*init)(void);
+	// De-initialize the device.
+	uint8_t deinitjp;
+	uint8_t (*deinit)(void);
+	// Read from the device. Dest is a physical address, src is a device-side address.
+	uint8_t readjp;
+	unsigned int (*read)(void *dest, void *src, unsigned int len);
+	// Write to the device. Dest is a device-side address, src is a physical address.
+	uint8_t writejp;
+	unsigned int (*write)(void *dest, void *src, unsigned int len);
+	// Return a physical address (DMA) for a given device-side address.
+	uint8_t dmajp;
+	void *(*getdma)(void *src);
+	// Called by the OS to handle interrupts this device responds to.
+	uint8_t interrupthandlerjp;
+	uint8_t (*interruptHandler)(void);
 } device_t;
 
 
@@ -182,9 +221,9 @@ uint8_t sys_WaitKeyCycle(void);
  * Get user input.
  * @param buffer Pointer to input buffer.
  * @param len Length of input buffer - 1.
- * @return Pointer to input buffer.
+ * @return 0 if user exit, 1 if user enter, 9/12 if user presses down/up arrow key.
  */
-char *gui_Input(char *buffer, unsigned int len);
+uint8_t gui_Input(char *buffer, unsigned int len);
 
 /**
  * Clear the screen and print a line.
@@ -634,6 +673,14 @@ void *fs_WriteNewFile(const char *path, uint8_t properties, void *data, int len)
  */
 void *util_Zx7Decompress(void *dest, void *src);
 
+/**
+ * Decompress a block of zx0-compressed memory.
+ * @param dest Pointer to write to.
+ * @param src Pointer to compressed data.
+ * @return pointer to byte following last byte written to dest.
+ */
+void *util_Zx0Decompress(void *dest, void *src);
+
 
 /**
  * Open a file, searching in directories listed within another file.
@@ -642,6 +689,41 @@ void *util_Zx7Decompress(void *dest, void *src);
  * @return pointer to file descriptor.
  */
 void *sys_OpenFileInVar(const char *path, const char *var);
+
+
+/**
+ * Create a thread to be run the next time a thread switch is triggered.
+ * @param pc Routine to run as a thread.
+ * @param sp Pointer to initial routine stack pointer. (Note that the stack grows downwards,
+ *           so you should pass the end of the memory you pass in.)
+ * @return Thread ID or 0 if failed.
+ * @note sp must be able to safely grow at least 12 bytes.
+ *       If null is passed, the same sp as the caller will be used, which may produce unexpected results.
+ */
+uint8_t th_CreateThread(void (*pc)(int, char**), void *sp, int argc, char **argv);
+
+/**
+ * Kill a thread by ID.
+ * @param id Thread ID to kill.
+ * @return Thread ID killed if success, otherwise 0.
+ */
+uint8_t th_KillThread(uint8_t id);
+
+/**
+ * Handle the next available thread, continuing from here if there are no other threads to handle,
+ * or once all other threads have been handled.
+ */
+inline void th_HandleNextThread(void) {asm("rst $10\npop bc");};
+
+/**
+ * End the currently running thread.
+ */
+inline void th_EndThread(void) {asm("rst $10\nret");};
+
+/**
+ * Sleep the currently running thread.
+ */
+inline void th_SleepThread(void) {asm("rst $10\nhalt");};
 
 
 #endif
