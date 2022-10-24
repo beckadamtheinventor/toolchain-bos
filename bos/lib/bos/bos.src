@@ -159,10 +159,9 @@
 	public _fs_GetFDPtr
 	public _fs_GetFDLen
 	public _fs_ArcUnarcFD
-<<<<<<< HEAD
 	public _util_Zx0Decompress
-=======
->>>>>>> 52886d0b25f6a17c5b6e573f274f52af6014db5a
+	public _sys_WaitKeyUnpress
+	public _sys_MallocDupStr
 _boot_os                         := $20108
 _handle_interrupt                := $2010C
 _HandleInstruction               := $20110
@@ -322,10 +321,9 @@ _fs_GetFilePtr                   := $2267C
 _fs_GetFDPtr                     := $22680
 _fs_GetFDLen                     := $22684
 _fs_ArcUnarcFD                   := $22688
-<<<<<<< HEAD
 _util_Zx0Decompress              := $2268C
-=======
->>>>>>> 52886d0b25f6a17c5b6e573f274f52af6014db5a
+_sys_WaitKeyUnpress              := $22690
+_sys_MallocDupStr                := $22694
 
 public ram_executable
 public ram_executable_at
