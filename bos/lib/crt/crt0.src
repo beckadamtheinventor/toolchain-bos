@@ -108,6 +108,9 @@ end if
 extern _fs_GetFDPtr
 	call	_fs_GetFDPtr
 	pop bc
+	ld	bc,.notfound
+	push	bc
+	ret	c
 	ld	de,___libs	; start of relocation data
 	jp	(hl)		; jump to the loader -- it should take care of everything else
 .notfound:
