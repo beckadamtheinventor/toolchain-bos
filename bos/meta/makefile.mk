@@ -26,7 +26,7 @@ BSSHEAP_LOW ?= D052C6
 BSSHEAP_HIGH ?= D13FD8
 STACK_HIGH ?= D1A87E
 ifeq ($(BOS_APP),YES)
-INIT_LOC ?= 0
+INIT_LOC ?= 01000000
 else
 INIT_LOC ?= D1A881
 endif
@@ -130,10 +130,12 @@ TARGETBIN ?= $(NAME).bin
 TARGETMAP ?= $(NAME).map
 ICONIMG := $(wildcard $(call NATIVEPATH,$(ICON)))
 
-# startup routines
+# define BOS_APP in the linker step to build as a BOS Flash Executable
 ifeq ($(BOS_APP),YES)
-LDFLAGS += -i $(call QUOTE_ARG,BOS_APP:)
+EXTRA_LDFLAGS += -i $(call QUOTE_ARG,BOS_APP:)
 endif
+
+# startup routines
 LDCRT0 = $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/crt/crt0.src)
 LDBCLTO = $(OBJDIR)/lto.bc
 LDLTO = $(OBJDIR)/lto.src
@@ -184,19 +186,29 @@ LDLIBS := $(subst $(comma)$(space)optional,$(space)optional,$(LDLIBS))
 # check if there is an icon present that to convert
 ifneq ($(ICONIMG),)
 ICONSRC ?= $(call NATIVEPATH,$(OBJDIR)/icon.src)
+HAS_ICON ?= YES
 ifneq ($(DESCRIPTION),)
 ICON_CONV ?= $(CONVIMG) --icon $(call QUOTE_ARG,$(ICONIMG)) --icon-output $(call QUOTE_ARG,$(ICONSRC)) --icon-format asm --icon-description $(DESCRIPTION)
+HAS_ICON ?= YES
 else
 ICON_CONV ?= $(CONVIMG) --icon $(call QUOTE_ARG,$(ICONIMG)) --icon-output $(call QUOTE_ARG,$(ICONSRC)) --icon-format asm
+HAS_ICON ?= YES
 endif
 LDICON ?= $(call FASMG_FILES,$(ICONSRC))$(comma)$(space)
+HAS_ICON ?= YES
 else
 ifneq ($(DESCRIPTION),)
 ICONSRC ?= $(call NATIVEPATH,$(OBJDIR)/icon.src)
 ICON_CONV ?= $(CONVIMG) --icon-output $(call QUOTE_ARG,$(ICONSRC)) --icon-format asm --icon-description $(DESCRIPTION)
 LDICON ?= $(call FASMG_FILES,$(ICONSRC))$(comma)$(space)
+HAS_ICON ?= YES
 endif
 endif
+
+ifeq ($(HAS_ICON),YES)
+EXTRA_LDFLAGS += -i $(call QUOTE_ARG,HAS_ICON:=1)
+endif
+
 
 # set default 'make gfx' target
 ifneq ($(wildcard $(GFXDIR)/.),)

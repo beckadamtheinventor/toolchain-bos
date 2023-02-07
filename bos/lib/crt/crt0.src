@@ -63,7 +63,7 @@ fini_functions:
 
 	section	.header
 if defined BOS_APP
-extern flash_executable
+include "../bos_macros.inc"
 	flash_executable ; BOS Flash Executable header (the macro also handles relocation)
 else
 ;extern ram_executable
@@ -71,6 +71,11 @@ else
 	db $18,$03,"REX" ; BOS Ram Executable header
 end if
 	db 0 ; C program identifier byte (nop)
+if defined BOS_APP
+	if HAS_ICON
+		rst $28 ; if there's an icon/description, it will begin with a jp instruction. We will need to make that an offset instruction.
+	end if
+end if
 
 	section	.init.libs
 launcher:
@@ -453,6 +458,11 @@ ctors::
 dtors::
 	section	.fini_array
 fini_array::
+
+	section .footer
+if defined BOS_APP
+	end flash_executable
+end if
 
 	extern	_main
 	extern	___main_argc_argv

@@ -14,7 +14,7 @@ if DEBUG
 	end iterate 
 end if 
  
-order .header, .icon, .init.libs, .libs, .init.clock, .init.reruncheck, .init, .fini, .text, .data, .rodata 
+order .header, .icon, .init.libs, .libs, .init.clock, .init.reruncheck, .init, .fini, .text, .data, .rodata, .footer 
 split : .init_array, .ctors, .dtors, .fini_array 
 precious .header, .icon, .init.libs if .libs.length, .libs, .init_array, .ctors, .dtors, .fini_array 
 provide ___low_bss = .bss.base 
@@ -81,6 +81,8 @@ source "..\\lib\\crt\\ipopcnt.src"
 source "..\\lib\\crt\\ipopcnt_fast.src" 
 source "..\\lib\\crt\\irems.src" 
 source "..\\lib\\crt\\iremu.src" 
+source "..\\lib\\crt\\ishl.src" 
+source "..\\lib\\crt\\ishrs.src" 
 source "..\\lib\\crt\\ishrs_1_fast.src" 
 source "..\\lib\\crt\\ishru_1_fast.src" 
 source "..\\lib\\crt\\ixor.src" 
@@ -117,6 +119,7 @@ source "..\\lib\\crt\\lland_fast.src"
 source "..\\lib\\crt\\llbitrev.src" 
 source "..\\lib\\crt\\llbswap.src" 
 source "..\\lib\\crt\\llcmps.src" 
+source "..\\lib\\crt\\llcmps_fast.src" 
 source "..\\lib\\crt\\llcmpu.src" 
 source "..\\lib\\crt\\llcmpu_fast.src" 
 source "..\\lib\\crt\\llcmpzero.src" 
@@ -207,6 +210,7 @@ source "..\\lib\\ce\\atomic_load_32.src"
 source "..\\lib\\ce\\atomic_load_decreasing_32.src" 
 source "..\\lib\\ce\\atomic_load_increasing_32.src" 
 source "..\\lib\\ce\\delay.src" 
+source "..\\lib\\ce\\eval.src" 
 source "..\\lib\\ce\\getstringinput.src" 
 source "..\\lib\\ce\\intce.src" 
 source "..\\lib\\ce\\os_textbuffer.src" 
@@ -220,6 +224,7 @@ source "..\\lib\\ce\\usleep.src"
 source "..\\lib\\ce\\zx0.src" 
 source "..\\lib\\ce\\zx7.src" 
 
+
 source "..\\lib\\bos\\bos.src"
 source "..\\lib\\bos\\bos_compat.src"
 source "..\\lib\\bos\\gfx_SetTextBGColor.src"
@@ -231,6 +236,7 @@ source "..\\lib\\bos\\gui_PrintChar.src"
 source "..\\lib\\bos\\gui_PrintInt.src"
 source "..\\lib\\bos\\gui_PrintLine.src"
 source "..\\lib\\bos\\TIVarToPath.src"
+
 
 if HAS_LIBC 
 	source "..\\lib\\libc\\abs.src" 
@@ -355,9 +361,6 @@ if HAS_LIBC
 	source "..\\lib\\libc\\isdigit.src" 
 	source "..\\lib\\libc\\isfinitef.src" 
 	source "..\\lib\\libc\\isgraph.src" 
-	source "..\\lib\\libc\\ishl.src" 
-	source "..\\lib\\libc\\ishrs.src" 
-	source "..\\lib\\libc\\ishru.src" 
 	source "..\\lib\\libc\\isinff.src" 
 	source "..\\lib\\libc\\islower.src" 
 	source "..\\lib\\libc\\isnanf.src" 
