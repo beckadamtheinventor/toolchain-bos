@@ -73,7 +73,13 @@ end if
 	db 0 ; C program identifier byte (nop)
 if defined BOS_APP
 	if HAS_ICON
-		rst $28 ; if there's an icon/description, it will begin with a jp instruction. We will need to make that an offset instruction.
+		; If there's an icon/description, it will begin with a jp instruction.
+		; We need to make sure we don't execute it because it doesn't account for long offset instruction notation
+		if launcher - $ < $80
+			jr launcher
+		else
+			jp launcher
+		end if
 	end if
 end if
 
@@ -86,6 +92,19 @@ extern	_sys_OpenFileInLib
 	pop	bc
 	jr	c,.notfound
 	push hl
+if defined BOS_APP
+flash_executable_disable_relocations
+	ld	de,$D1A881
+	ld	hl,___data_length
+	call	$020514 ; _InsertMem
+	rst $28 ; manually relocate this lol
+	ld	hl,___data - $ + 4
+	ld	de,$D1A881
+	ld	bc,___data_length
+	ldir
+flash_executable_enable_relocations
+end if
+
 extern _fs_GetFDPtr
 	call	_fs_GetFDPtr
 	pop bc
@@ -447,6 +466,13 @@ _exit.flash_wait_states := $-1
 	call	020808h		; _ClrLCDFull
 	call	020828h		; _HomeUp
 	call	021A3Ch		; _DrawStatusBar
+
+if defined BOS_APP
+	ld	hl,$D1A881
+	ld	de,___data_length
+	call	$020590 ; _DelMem
+end if
+
 	pop	hl		; hl = exit code
 	ret
 
@@ -472,6 +498,8 @@ end if
 	extern	___init_array_count
 	extern	___len_bss
 	extern	___libs
+	extern	___data
+	extern	___data_length
 	extern	___low_bss
 	extern	__indcallhl
 	extern	_free

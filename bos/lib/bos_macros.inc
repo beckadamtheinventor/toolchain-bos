@@ -12,52 +12,84 @@ macro ram_executable_at? addr
 end macro
 
 macro flash_executable?
-		db $18,$04,"FEX",$00
+	local relocations_enabled
+	db $18,$04,"FEX",$00
 	macro end?.flash_executable?
 		iterate opcode,  call, jp, jq, ld
 			restore opcode
 		end iterate
 		purge end?.flash_executable?
 	end macro
+	macro flash_executable_enable_relocations
+		relocations_enabled = 1
+	end macro
+	macro flash_executable_disable_relocations
+		relocations_enabled = 0
+	end macro
+	relocations_enabled = 1
 	iterate opcode,  call, jp, jq, ld
 		macro opcode? args&
-			match lhs=,rhs, args
-				match (val), lhs
-					if val relativeto 0 & val >= $01000000
-						rst $28
-						opcode (0), rhs
-						store (val and $FFFFFF) - $ : 3 at $ - 3
+			if relocations_enabled = 1
+				match lhs=,rhs, args
+					match (val), lhs
+						if val relativeto 0 & val >= $01000000
+							if val >= ___data & val < ___data + ___data_length
+								opcode (0), rhs
+								store (val + $D1A881 - ___data) : 3 at $ - 3
+							else
+								rst $28
+								opcode (0), rhs
+								store (val - $) : 3 at $ - 3
+							end if
+						else
+							opcode (val), rhs
+						end if
+					else match (val), rhs
+						if val relativeto 0 & val >= $01000000
+							if val >= ___data & val < ___data + ___data_length
+								opcode lhs, (0)
+								store (val + $D1A881 - ___data) : 3 at $ - 3
+							else
+								rst $28
+								opcode lhs, (0)
+								store (val - $) : 3 at $ - 3
+							end if
+						else
+							opcode lhs, (val)
+						end if
+					else if rhs relativeto 0 & rhs >= $01000000
+						if rhs >= ___data & rhs < ___data + ___data_length
+							opcode lhs, 0
+							store (rhs + $D1A881 - ___data) : 3 at $ - 3
+						else
+							rst $28
+							opcode lhs, 0
+							store (rhs - $) : 3 at $ - 3
+						end if
 					else
-						opcode (val), rhs
+						opcode lhs, rhs
 					end if
-				else match (val), rhs
-					if val relativeto 0 & val >= $01000000
-						rst $28
-						opcode lhs, (0)
-						store (val and $FFFFFF) - $ : 3 at $ - 3
+				else match opcode= lhs, args
+					match (val), lhs
+						opcode lhs
+					else if lhs relativeto 0 & lhs >= $01000000
+						if lhs >= ___data & lhs < ___data + ___data_length
+							opcode 0
+							store (lhs + $D1A881 - ___data) : 3 at $ - 3
+						else
+							rst $28
+							opcode 0
+							store (lhs - $) : 3 at $ - 3
+						end if
 					else
-						opcode lhs, (val)
+						opcode lhs
 					end if
-				else if rhs relativeto 0 & rhs >= $01000000
-					rst $28
-					opcode lhs, 0
-					store (rhs and $FFFFFF) - $ : 3 at $ - 3
 				else
-					opcode lhs, rhs
-				end if
-			else match opcode= lhs, args
-				match (val), lhs
-					opcode lhs
-				else if lhs relativeto 0 & lhs >= $01000000
-					rst $28
-					opcode 0
-					store (lhs and $FFFFFF) - $ : 3 at $ - 3
-				else
-					opcode lhs
-				end if
+					opcode args
+				end match
 			else
 				opcode args
-			end match
+			end if
 		end macro
 	end iterate
 end macro
