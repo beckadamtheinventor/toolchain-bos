@@ -35,7 +35,10 @@ macro flash_executable?
 						if val relativeto 0 & val >= $01000000
 							if val >= ___data & val < ___data + ___data_length
 								opcode (0), rhs
-								store (val + $D1A881 - ___data) : 3 at $ - 3
+								store (val + $D1A881 + 5 + ___libs_length - ___data) : 3 at $ - 3
+							else if val >= ___libs & val < ___libs + ___libs_length
+								opcode (0), rhs
+								store (val + $D1A881 - ___libs) : 3 at $ - 3
 							else
 								rst $28
 								opcode (0), rhs
@@ -48,7 +51,10 @@ macro flash_executable?
 						if val relativeto 0 & val >= $01000000
 							if val >= ___data & val < ___data + ___data_length
 								opcode lhs, (0)
-								store (val + $D1A881 - ___data) : 3 at $ - 3
+								store (val + $D1A881 + 5 + ___libs_length - ___data) : 3 at $ - 3
+							else if val >= ___libs & val < ___libs + ___libs_length
+								opcode lhs, (0)
+								store (val + $D1A881 - ___libs) : 3 at $ - 3
 							else
 								rst $28
 								opcode lhs, (0)
@@ -60,7 +66,10 @@ macro flash_executable?
 					else if rhs relativeto 0 & rhs >= $01000000
 						if rhs >= ___data & rhs < ___data + ___data_length
 							opcode lhs, 0
-							store (rhs + $D1A881 - ___data) : 3 at $ - 3
+							store (rhs + $D1A881 + 5 + ___libs_length - ___data) : 3 at $ - 3
+						else if rhs >= ___libs & rhs < ___libs + ___libs_length
+							opcode lhs, 0
+							store (rhs + $D1A881 - ___libs) : 3 at $ - 3
 						else
 							rst $28
 							opcode lhs, 0
@@ -75,7 +84,10 @@ macro flash_executable?
 					else if lhs relativeto 0 & lhs >= $01000000
 						if lhs >= ___data & lhs < ___data + ___data_length
 							opcode 0
-							store (lhs + $D1A881 - ___data) : 3 at $ - 3
+							store (lhs + $D1A881 + 5 + ___libs_length - ___data) : 3 at $ - 3
+						else if lhs >= ___libs & lhs < ___libs + ___libs_length
+							opcode 0
+							store (lhs + $D1A881 - ___libs) : 3 at $ - 3
 						else
 							rst $28
 							opcode 0

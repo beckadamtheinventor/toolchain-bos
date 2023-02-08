@@ -84,6 +84,7 @@ if defined BOS_APP
 end if
 
 	section	.init.libs
+private launcher
 launcher:
 	ld	hl,.libloadname
 	push	hl
@@ -95,11 +96,32 @@ extern	_sys_OpenFileInLib
 if defined BOS_APP
 flash_executable_disable_relocations
 	ld	de,$D1A881
-	ld	hl,___data_length
+	ld	hl,___libs_length + ___data_length + 5
+	ld	($D0118C),hl ; asm_prgm_size
+	push	de
 	call	$020514 ; _InsertMem
+	pop	de
 	rst $28 ; manually relocate this lol
-	ld	hl,___data - $ + 4
-	ld	de,$D1A881
+	ld	hl,___libs - ._1
+._1:
+	ld	bc,___libs_length
+	ldir
+	ex	hl,de
+	ld	(hl),0
+	inc	hl
+	ld	(hl),$C3
+	inc	hl
+	rst	$28
+	ld	de,__start - ._3
+._3:
+	ld	(hl),de
+	inc	hl
+	inc	hl
+	inc	hl
+	ex	hl,de
+	rst $28
+	ld	hl,___data - ._2
+._2:
 	ld	bc,___data_length
 	ldir
 flash_executable_enable_relocations
@@ -108,9 +130,7 @@ end if
 extern _fs_GetFDPtr
 	call	_fs_GetFDPtr
 	pop bc
-	ld	bc,.notfound
-	push	bc
-	ret	c
+	jr c,.notfound
 	ld	de,___libs	; start of relocation data
 	jp	(hl)		; jump to the loader -- it should take care of everything else
 .notfound:
@@ -121,6 +141,7 @@ extern	_asm_gui_PrintLine
 	call	_asm_gui_PrintLine
 extern	_sys_WaitKeyCycle
 	jq	_sys_WaitKeyCycle		; _getkey
+
 
 	section	.rodata
 	private	.missingappvar
@@ -174,15 +195,27 @@ assert mpTmr2Counter shr 8 = mpTmrCtrl shr 8
 	private	___rerun_handler.data_size
 ___rerun_handler:
 	ld	hl,(_exit.sp)
+if defined BOS_APP
+	ld	de,(.data_size)
+else
 	ld	de,0
 .data_size := $ - 3
+end if
 	add	hl,de
 	ld	(_exit.sp),hl		; move exit.sp to real ret
+if defined BOS_APP
+	ld	hl,(.retval)
+else
 	ld	hl,0
 .retval := $ - 3
+end if
 	ex	(sp),hl
+if defined BOS_APP
+	ld	de,(BOS_APP)
+else
 	ld	de,0
 .data := $ - 3
+end if
 	push	de,hl
 	jp	0
 .callback := $ - 3
@@ -324,11 +357,37 @@ end if
 ifextern ___main_argc_argv
 	call	___main_argc_argv
 else
+if defined BOS_APP
+	ld	hl,_main
+	ld	(_jp_main+1),hl
+	call _jp_main
+else
 	call	_main
-end if
 	public	__start._main
 __start._main := $ - 3
+end if
+end if
 	require	___exithl
+
+if defined BOS_APP
+	section .data
+___rerun_handler.retval := $ + $D1A881 + 5 + ___libs_length - ___data
+	dl 0
+___rerun_handler.callback := $ + $D1A881 + 5 + ___libs_length - ___data
+	dl 0
+___rerun_handler.data_size := $ + $D1A881 + 5 + ___libs_length - ___data
+	dl 0
+___rerun_handler.data := $ + $D1A881 + 5 + ___libs_length - ___data
+	dl 0
+
+private _jp_main
+_jp_main := $ + $D1A881 + 5 + ___libs_length - ___data
+flash_executable_disable_relocations
+	jp 0
+flash_executable_enable_relocations
+	; public	__start._main
+__start._main := $ + $D1A881 + 5 + ___libs_length - ___data + 3
+end if
 
 	section	.fini
 	public	___exithl
@@ -451,14 +510,23 @@ _abort:
 	section	.fini
 	private	skip._abort
 skip._abort:
+
+if defined BOS_APP
+	ld	sp,(_exit.sp)
+else
 	ld	sp,0
 	public	_exit.sp
 _exit.sp := $-3
+end if
 	push	hl
 	ld	iy,0D00080h
+if defined BOS_APP
+	ld	a,(_exit.flash_wait_states)
+else
 	ld	a,0
 	private	_exit.flash_wait_states
 _exit.flash_wait_states := $-1
+end if
 	ld	(0E00305h),a
 	call	00004F0h	; _usb_ResetTimer
 	call	_os_EnableHomeTextBuffer
@@ -472,12 +540,21 @@ _exit.flash_wait_states := $-1
 
 if defined BOS_APP
 	ld	hl,$D1A881
-	ld	de,___data_length
+	ld	de,___libs_length + ___data_length + 5
 	call	$020590 ; _DelMem
 end if
 
 	pop	hl		; hl = exit code
 	ret
+
+if defined BOS_APP
+	section .data
+_exit.sp := $ + $D1A881 + 5 + ___libs_length - ___data
+	dl 0
+	private _exit.flash_wait_states
+_exit.flash_wait_states := $ + $D1A881 + 5 + ___libs_length - ___data
+	db 0
+end if
 
 	section	.init_array
 init_array::
@@ -487,6 +564,7 @@ ctors::
 dtors::
 	section	.fini_array
 fini_array::
+
 
 	section .footer
 if defined BOS_APP
@@ -501,6 +579,7 @@ end if
 	extern	___init_array_count
 	extern	___len_bss
 	extern	___libs
+	extern	___libs_length
 	extern	___data
 	extern	___data_length
 	extern	___low_bss

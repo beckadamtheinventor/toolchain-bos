@@ -13,19 +13,18 @@ if DEBUG
 		precious sections 
 	end iterate 
 end if 
-
-order .header, .icon, .init.libs, .init.clock, .init.reruncheck, .init, .fini, .text, .rodata, .data, .libs, .footer
-
+ 
+order .header, .icon, .init.libs, .libs, .init.clock, .init.reruncheck, .init, .fini, .text, .data, .rodata, .footer 
 split : .init_array, .ctors, .dtors, .fini_array 
 precious .header, .icon, .init.libs if .libs.length, .libs, .init_array, .ctors, .dtors, .fini_array 
 provide ___low_bss = .bss.base 
 provide ___len_bss = .bss.length 
 provide ___heaptop = .bss.high 
 provide ___heapbot = .bss.top 
-provide ___libs = .libs.base 
-provide ___libs_length = .libs.length
 provide ___data = .data.base
-provide ___data_length = .footer.base - .data.base
+provide ___data_length = .data.length 
+provide ___libs = .libs.base 
+provide ___libs_length = .libs.length 
 provide ___init_array_count = .init_array.length / 3 
 provide ___ctors_count = .ctors.length / 3 
 provide ___dtors_count = .dtors.length / 3 
