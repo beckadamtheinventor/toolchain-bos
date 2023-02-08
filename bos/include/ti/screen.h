@@ -154,7 +154,6 @@ void os_EnableHomeTextBuffer(void);
  * @param[in] string Input prompt string to be displayed to the user
  * @param[in] buf Storage location to store input string
  * @param[in] bufsize Available storage size for input string. -1 for null termination.
- * @returns None
  */
 void os_GetStringInput(char *string, char *buf, size_t bufsize);
 
@@ -220,7 +219,7 @@ font_t *os_FontGetID(void);
 uint24_t os_FontGetWidth(const char *string);
 
 /**
- * @returns[in] The height of the font characters
+ * @returns The height of the font characters
  */
 uint24_t os_FontGetHeight(void);
 
@@ -270,30 +269,38 @@ void os_SetDrawBGColor(uint24_t color);
  */
 uint24_t os_GetDrawBGColor(void);
 
-#define os_TextFlags         (*(uint8_t*)0xD00080)
-
-#define os_TextShadow        ((uint8_t*)0xD006C0)   /**< Text buffer, 260 bytes. */
+/* @cond */
+#define os_CmdShadow         ((uint8_t*)0xD0232D)
+#define os_TextShadow        ((uint8_t*)0xD006C0)
 #define os_PromptRow         (*(uint8_t*)0xD00800)
 #define os_PromptCol         (*(uint8_t*)0xD00801)
 #define os_PromptIns         (*(uint8_t*)0xD00802)
 #define os_PromptShift       (*(uint8_t*)0xD00803)
 #define os_PromptRet         (*(uint8_t*)0xD00804)
 #define os_PromptValid       (*(uint8_t*)0xD00807)
+/* @endcond */
 
+/** `uint8_t`: Font row position */
 #define os_CurRow            (*(uint8_t*)0xD00595)
+/** `uint8_t`: Font column position */
 #define os_CurCol            (*(uint8_t*)0xD00596)
-
-#define os_CmdShadow         ((uint8_t*)0xD0232D)
-
-#define os_TextFGColor       (*(uint16_t*)0xD02688)        /**< Large font foreground color */
-#define os_TextBGColor       (*(uint16_t*)0xD0268A)        /**< Large font background color */
-
-#define os_PenCol            (*(uint24_t*)0xD008D2)        /**< Small font column location. */
-#define os_PenRow            (*(uint8_t*)0xD008D5)         /**< Small font row location. */
-#define os_DrawBGColor       (*(uint16_t*)0xD026AA)        /**< Small font background color */
-#define os_DrawFGColor       (*(uint16_t*)0xD026AC)        /**< Small font foreground color */
+/** `uint16_t`: Large font foreground 565 BGR color */
+#define os_TextFGColor       (*(uint16_t*)0xD02688)
+/** `uint16_t`: Large font background 565 BGR color */
+#define os_TextBGColor       (*(uint16_t*)0xD0268A)
+/** `uint24_t`: Small font column position */
+#define os_PenCol            (*(uint24_t*)0xD008D2)
+/** `uint8_t`: Small font row position */
+#define os_PenRow            (*(uint8_t*)0xD008D5)
+ /** `uint16_t`: Small font background 565 BGR color */
+#define os_DrawBGColor       (*(uint16_t*)0xD026AA)
+/** `uint16_t`: Small font foreground 565 BGR color */
+#define os_DrawFGColor       (*(uint16_t*)0xD026AC)
+/** `uint8_t`: Small OS font color code */
 #define os_DrawColorCode     (*(uint8_t*)0xD026AE)
-#define os_GraphBGColor      (*(uint16_t*)0xD02A98)        /**< Graph background 565 color */
+/** `uint16_t`: Graph background 565 BGR color */
+#define os_GraphBGColor      (*(uint16_t*)0xD02A98)
+/** `uint16_t`: OS Rect draw 565 BGR color */
 #define os_FillRectColor     (*(uint16_t*)0xD02AC0)
 
 #undef tiflags
