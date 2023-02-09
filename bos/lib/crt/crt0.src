@@ -217,8 +217,13 @@ else
 .data := $ - 3
 end if
 	push	de,hl
+if defined BOS_APP
+	ld	hl,(.callback)
+	jp	(hl)
+else
 	jp	0
 .callback := $ - 3
+end if
 
 	section	.init.reruncheck
 	public	___prgm_run_check
@@ -382,9 +387,7 @@ ___rerun_handler.data := $ + $D1A881 + 5 + ___libs_length - ___data
 
 private _jp_main
 _jp_main := $ + $D1A881 + 5 + ___libs_length - ___data
-flash_executable_disable_relocations
-	jp 0
-flash_executable_enable_relocations
+	db $C3,0,0,0 ; jp 0 (will be SMC'd once in RAM)
 	; public	__start._main
 __start._main := $ + $D1A881 + 5 + ___libs_length - ___data + 3
 end if
@@ -564,12 +567,6 @@ ctors::
 dtors::
 	section	.fini_array
 fini_array::
-
-
-	section .footer
-if defined BOS_APP
-	end flash_executable
-end if
 
 	extern	_main
 	extern	___main_argc_argv

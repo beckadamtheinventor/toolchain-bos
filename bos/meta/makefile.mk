@@ -26,7 +26,7 @@ BSSHEAP_LOW ?= D052C6
 BSSHEAP_HIGH ?= D13FD8
 STACK_HIGH ?= D1A87E
 ifeq ($(BOS_APP),YES)
-INIT_LOC ?= 01000000
+INIT_LOC ?= 0
 else
 INIT_LOC ?= D1A881
 endif
@@ -131,9 +131,9 @@ TARGETMAP ?= $(NAME).map
 ICONIMG := $(wildcard $(call NATIVEPATH,$(ICON)))
 
 # define BOS_APP in the linker step to build as a BOS Flash Executable
-ifeq ($(BOS_APP),YES)
-EXTRA_LDFLAGS += -i $(call QUOTE_ARG,BOS_APP:)
-endif
+# ifeq ($(BOS_APP),YES)
+# EXTRA_LDFLAGS += -i $(call QUOTE_ARG,BOS_APP:)
+# endif
 
 # startup routines
 LDCRT0 = $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/crt/crt0.src)
@@ -209,7 +209,6 @@ ifeq ($(HAS_ICON),YES)
 EXTRA_LDFLAGS += -i $(call QUOTE_ARG,HAS_ICON:=1)
 endif
 
-
 # set default 'make gfx' target
 ifneq ($(wildcard $(GFXDIR)/.),)
 MAKE_GFX ?= cd $(GFXDIR) && $(CONVIMG)
@@ -261,6 +260,7 @@ FASMGFLAGS = \
 	-i $(call QUOTE_ARG,range .bss $$$(BSSHEAP_LOW) : $$$(BSSHEAP_HIGH)) \
 	-i $(call QUOTE_ARG,provide __stack = $$$(STACK_HIGH)) \
 	-i $(call QUOTE_ARG,locate .header at $$$(INIT_LOC)) \
+	-i $(call QUOTE_ARG,provide ___exec_base = $$$(INIT_LOC)) \
 	$(LDMAPFLAG) \
 	-i $(call QUOTE_ARG,source $(LDICON)$(call FASMG_FILES,$(LDFILES))) \
 	-i $(call QUOTE_ARG,library $(LDLIBS)) \

@@ -215,7 +215,7 @@ macro ?! $              : $              , \
 		match , names
 		jno loop
 	end calminstruction
-
+	
 	iterate <name*,list*>, library,libraries, source,sources
 		list.count = 0
 		calminstruction script.name files&
