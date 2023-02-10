@@ -550,8 +550,8 @@ end if
 	pop	hl		; hl = exit code
 	ret
 
-if defined BOS_APP
 	section .data
+if defined BOS_APP
 _exit.sp := $ + $D1A881 + 5 + ___libs_length - ___data
 	dl 0
 	private _exit.flash_wait_states
