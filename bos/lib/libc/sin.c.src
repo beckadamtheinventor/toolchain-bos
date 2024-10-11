@@ -7,38 +7,41 @@ _sinus:
 	call	__frameset
 	ld	hl, (ix + 6)
 	ld	e, (ix + 9)
-	ld	iy, (ix + 12)
 	ld	bc, 0
 	xor	a, a
 	call	__fcmp
 	jp	m, BB0_2
-	ld	l, 0
+	ld	iyl, 0
 	jr	BB0_3
 BB0_2:
-	ld	l, 1
+	ld	iyl, 1
 BB0_3:
-	ld	bc, (ix + 6)
-	ld	h, e
+	ld	hl, (ix + 6)
+	push	hl
+	pop	bc
 	ld	a, e
 	call	__fneg
+	ld	hl, (ix + 12)
 	ld	de, 2
-	add	iy, de
-	ld	(ix - 14), iy
-	bit	0, l
+	add	hl, de
+	ld	(ix - 14), hl
+	ld	e, iyl
+	bit	0, e
 	jr	nz, BB0_5
 	ld	bc, (ix + 6)
 BB0_5:
-	bit	0, l
+	bit	0, e
 	jr	nz, BB0_7
-	ld	a, h
+	ld	a, (ix + 9)
 BB0_7:
-	ld	e, 63
-	bit	0, l
-	ld	iy, (ix + 12)
-	jr	nz, BB0_9
-	ld	(ix - 14), iy
-BB0_9:
 	ld	hl, 2292099
+	ld	iyl, 63
+	bit	0, e
+	jr	nz, BB0_9
+	ld	de, (ix + 12)
+	ld	(ix - 14), de
+BB0_9:
+	ld	e, iyl
 	call	__fmul
 	ld	iyl, a
 	ld	hl, -2048
@@ -152,7 +155,7 @@ BB0_12:
 	ld	bc, 1
 	call	__iand
 	ld	a, l
-	xor	a, 1
+	xor	a, c
 	ld	d, a
 	ld	bc, -8388608
 	ld	a, 63
@@ -292,7 +295,7 @@ __sinf_c:
 	public	__sin_c
 	label	__sin_c at __sinf_c
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__setflag
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister

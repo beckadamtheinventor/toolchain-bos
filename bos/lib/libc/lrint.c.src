@@ -5,8 +5,7 @@
 _lrintf:
 	call	__frameset0
 	ld	hl, (ix + 6)
-	ld	a, (ix + 9)
-	ld	e, a
+	ld	e, (ix + 9)
 	push	de
 	push	hl
 	call	_rintf
@@ -27,7 +26,7 @@ _lrintf:
 	public	_lrint
 	label	_lrint at _lrintf
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	_rintf

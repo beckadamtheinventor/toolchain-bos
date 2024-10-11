@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022
+# Copyright (C) 2015-2024 CE Programming
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,8 +21,8 @@ NAME ?= DEMO
 ICON ?=
 DESCRIPTION ?=
 COMPRESSED ?= NO
-ARCHIVED ?= NO
-BSSHEAP_LOW ?= D031F6
+ARCHIVED ?= YES
+BSSHEAP_LOW ?= D052C6
 BSSHEAP_HIGH ?= D13FD8
 STACK_HIGH ?= D1A87E
 ifeq ($(BOS_APP),YES)
@@ -39,8 +39,8 @@ SRCDIR ?= src
 OBJDIR ?= bosobj
 BINDIR ?= bosbin
 GFXDIR ?= src/gfx
-CPP_EXTENSION = cpp
-C_EXTENSION = c
+CPP_EXTENSION ?= cpp
+C_EXTENSION ?= c
 CUSTOM_FILE_FILE ?= stdio_file.h
 DEPS ?=
 HAS_UPPERCASE_NAME ?= YES
@@ -48,14 +48,20 @@ HAS_PRINTF ?= YES
 HAS_CUSTOM_FILE ?= NO
 HAS_LIBC ?= YES
 HAS_LIBCXX ?= YES
+ALLOCATOR ?= STANDARD
 PREFER_OS_CRT ?= NO
 PREFER_OS_LIBC ?= YES
 LIBLOAD_OPTIONAL ?=
 COMPRESSED_MODE ?= zx7
+COMMENT ?= $(shell cedev-config --comment)
 #----------------------------
 CEDEV_TOOLCHAIN ?= $(shell cedev-config --prefix)
 CEDEV_TOOLCHAIN_BOS ?= $(CEDEV_TOOLCHAIN)/bos
 #----------------------------
+
+ifneq ($(words $(NAME)),1)
+$(error NAME must not contain any spaces)
+endif
 
 # define some common makefile things
 empty :=
@@ -82,7 +88,7 @@ Q =
 FASMG_V := -v$(V)
 endif
 
-BIN ?= $(call NATIVEPATH,$(CEDEV_TOOLCHAIN)/bin)
+BIN ?= $(CEDEV_TOOLCHAIN)/bin
 # get the os specific items
 ifeq ($(OS),Windows_NT)
 SHELL = cmd.exe
@@ -117,7 +123,7 @@ UPDIR_RM = $(subst _../,../,$(subst \,/,$1))
 
 FASMG_LIB = $(patsubst %,"%",$(subst ",\",$(subst \,\\,$(call NATIVEPATH,$1))))
 FASMG_FILES = $(subst $(space),$(comma) ,$(patsubst %,"%",$(subst ",\",$(subst \,\\,$(call NATIVEPATH,$1)))))#"
-LINKER_SCRIPT ?= $(CEDEV_TOOLCHAIN_BOS)/meta/linker_script
+LINKER_SCRIPT ?= ${CEDEV_TOOLCHAIN_BOS}/meta/linker_script
 
 # ensure native paths
 SRCDIR := $(call NATIVEPATH,$(SRCDIR))
@@ -130,13 +136,8 @@ TARGETBIN ?= $(NAME).bin
 TARGETMAP ?= $(NAME).map
 ICONIMG := $(wildcard $(call NATIVEPATH,$(ICON)))
 
-# define BOS_APP in the linker step to build as a BOS Flash Executable
-# ifeq ($(BOS_APP),YES)
-# EXTRA_LDFLAGS += -i $(call QUOTE_ARG,BOS_APP:)
-# endif
-
 # startup routines
-LDCRT0 = $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/crt/crt0.src)
+LDCRT0 = $(call NATIVEPATH,${CEDEV_TOOLCHAIN_BOS}/lib/crt/crt0.src)
 LDBCLTO = $(OBJDIR)/lto.bc
 LDLTO = $(OBJDIR)/lto.src
 
@@ -173,7 +174,7 @@ DEPFILES = $(wildcard $(LINK_CSOURCES:%.src=%.d) $(LINK_CPPSOURCES:%.src=%.d))
 endif
 
 # find all required/optional libload libraries
-LIBLOAD_LIBS ?= $(wildcard $(CEDEV_TOOLCHAIN_BOS)/lib/libload/*.lib) $(EXTRA_LIBLOAD_LIBS)
+LIBLOAD_LIBS ?= $(wildcard ${CEDEV_TOOLCHAIN_BOS}/lib/libload/*.lib) $(EXTRA_LIBLOAD_LIBS)
 LIBLOAD_LIBS := $(filter-out %libload.lib,$(LIBLOAD_LIBS))
 REQ_LIBLOAD := $(filter-out $(addprefix %,$(addsuffix .lib,$(LIBLOAD_OPTIONAL))),$(LIBLOAD_LIBS))
 OPT_LIBLOAD := $(filter $(addprefix %,$(addsuffix .lib,$(LIBLOAD_OPTIONAL))),$(LIBLOAD_LIBS))
@@ -241,26 +242,26 @@ endif
 
 # define the c/c++ flags used by clang
 EZLLVMFLAGS = -mllvm -profile-guided-section-prefix=false
-EZCOMMONFLAGS = -nostdinc -isystem $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/include) -I$(SRCDIR) -fno-threadsafe-statics -Xclang -fforce-mangle-main-argc-argv $(EZLLVMFLAGS) -D$(DEBUGMODE) $(DEFCUSTOMFILE) $(CCDEBUG)
+EZCOMMONFLAGS = -nostdinc -isystem $(call NATIVEPATH,${CEDEV_TOOLCHAIN_BOS}/include) -I$(SRCDIR) -fno-threadsafe-statics -Xclang -fforce-mangle-main-argc-argv $(EZLLVMFLAGS) -D$(DEBUGMODE) $(DEFCUSTOMFILE) $(CCDEBUG)
 EZCFLAGS = $(EZCOMMONFLAGS) $(CFLAGS)
-EZCXXFLAGS = $(EZCOMMONFLAGS) -isystem $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/include/c++) -fno-exceptions -fno-use-cxa-atexit $(CXXFLAGS)
+EZCXXFLAGS = $(EZCOMMONFLAGS) -isystem $(call NATIVEPATH,${CEDEV_TOOLCHAIN_BOS}/include/c++) -fno-exceptions -fno-use-cxa-atexit $(CXXFLAGS)
 EZLTOFLAGS = $(EZLLVMFLAGS) $(LTOFLAGS)
 
 # these are the fasmg linker flags
 FASMGFLAGS = \
 	$(FASMG_V) \
-	$(call QUOTE_ARG,$(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/meta/ld.alm)) \
+	$(call QUOTE_ARG,$(call NATIVEPATH,${CEDEV_TOOLCHAIN_BOS}/meta/ld.alm)) \
 	-i $(call QUOTE_ARG,DEBUG := $(LDDEBUG)) \
 	-i $(call QUOTE_ARG,HAS_PRINTF := $(LDHAS_PRINTF)) \
 	-i $(call QUOTE_ARG,HAS_LIBC := $(LDHAS_LIBC)) \
 	-i $(call QUOTE_ARG,HAS_LIBCXX := $(LDHAS_LIBCXX)) \
 	-i $(call QUOTE_ARG,PREFER_OS_CRT := $(LDPREFER_OS_CRT)) \
 	-i $(call QUOTE_ARG,PREFER_OS_LIBC := $(LDPREFER_OS_LIBC)) \
+	-i $(call QUOTE_ARG,ALLOCATOR_$(ALLOCATOR) := 1) \
 	-i $(call QUOTE_ARG,include $(call FASMG_FILES,$(LINKER_SCRIPT))) \
 	-i $(call QUOTE_ARG,range .bss $$$(BSSHEAP_LOW) : $$$(BSSHEAP_HIGH)) \
 	-i $(call QUOTE_ARG,provide __stack = $$$(STACK_HIGH)) \
 	-i $(call QUOTE_ARG,locate .header at $$$(INIT_LOC)) \
-	-i $(call QUOTE_ARG,provide ___exec_base = $$$(INIT_LOC)) \
 	$(LDMAPFLAG) \
 	-i $(call QUOTE_ARG,source $(LDICON)$(call FASMG_FILES,$(LDFILES))) \
 	-i $(call QUOTE_ARG,library $(LDLIBS)) \
@@ -286,6 +287,7 @@ ifeq ($(COMPRESSED),YES)
 	$(Q)$(CONVBIN) -i $(call NATIVEPATH,$@) -o $(call NATIVEPATH,$@.zx7) -j bin -k bin -c zx7
 	$(Q)$(FASMG) -i $(call QUOTE_ARG,DATA_FILE = $(call QUOTE_ARG,$@)) -i $(call QUOTE_ARG,COMPRESSED_FILE = $(call QUOTE_ARG,$@.zx7)) $(call NATIVEPATH,$(CEDEV_TOOLCHAIN_BOS)/lib/compressed_rex.asm) $(call NATIVEPATH,$@)
 endif
+
 ifneq ($(ICONSRC),)
 $(ICONSRC): $(ICONIMG) $(MAKEFILE_LIST) $(DEPS)
 	$(Q)$(call MKDIR,$(@D))

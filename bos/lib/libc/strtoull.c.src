@@ -57,18 +57,19 @@ BB0_6:
 	cp	a, 48
 	jr	nz, BB0_15
 	ld	a, (iy + 1)
+	add	a, -88
 	and	a, -33
-	cp	a, 88
+	or	a, a
 	jr	z, BB0_18
 	ld	a, 8
-	jr	BB0_17
+	jr	BB0_16
 BB0_10:
 	ld	de, 16
 	push	bc
 	pop	hl
 	or	a, a
 	sbc	hl, de
-	jr	nz, BB0_16
+	jr	nz, BB0_17
 	ld	a, (iy)
 	cp	a, 48
 	jr	nz, BB0_18
@@ -82,11 +83,11 @@ BB0_14:
 	jr	BB0_18
 BB0_15:
 	ld	a, 10
-	jr	BB0_17
 BB0_16:
-	ld	a, c
-BB0_17:
 	ld	(ix - 13), a
+	jr	BB0_18
+BB0_17:
+	ld	(ix - 13), c
 BB0_18:
 	or	a, a
 	sbc	hl, hl
@@ -240,7 +241,7 @@ BB0_41:
 	ret
 	section	.text,"ax",@progbits
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__llcmpu
 	extern	__Unwind_SjLj_Unregister

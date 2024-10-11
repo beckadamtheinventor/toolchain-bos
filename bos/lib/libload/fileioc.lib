@@ -1,4 +1,4 @@
-	library	FILEIOC, 7
+	library	FILEIOC, 8
 
 	export	ti_CloseAll
 	export	ti_Open
@@ -36,3 +36,4 @@
 	export	ti_RenameVar
 	export	ti_ArchiveHasRoom
 	export	ti_SetGCBehavior
+	export	ti_ArchiveHasRoomVar

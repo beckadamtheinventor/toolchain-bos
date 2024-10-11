@@ -3,6 +3,7 @@
 	public _boot_os
 	public _handle_interrupt
 	public _HandleInstruction
+	public _sc_HandleSysCall
 	public _handle_offsetinstruction
 	public _sys_ExecuteFile
 	public _os_GetOSInfo
@@ -81,8 +82,11 @@
 	public _sys_Free
 	public _sys_CallExecuteFile
 	public _sys_JumpExecuteFile
-	public _sys_OpenDevice
+	public _drv_InitDevice
 	public _fs_CopyFile
+	public _sys_GetRandomAddress
+	public _sys_Random8
+	public _sys_Random32
 	public _fs_GetSector
 	public _fs_WriteByte
 	public _fs_RenameFile
@@ -91,7 +95,7 @@
 	public _bosgfx_BufClear
 	public _bosgfx_LcdClear
 	public _fs_SanityCheck
-	public _sys_SetupOnInterruptHandler
+	public _sys_SetOnInterruptHandler
 	public _asm_gui_PrintChar
 	public _bosgfx_SetDraw
 	public _asm_gui_PrintString
@@ -166,9 +170,33 @@
 	public __SearchSymTable
 	public _fs_Rename
 	public _fs_AllocChk
+	public _sys_GetExecType
+	public _sys_GetExecTypeFD
+	public _util_Zx7Compress
+	public _sys_OpenRecoveryMenu
+	public _util_Relocate
+	public _fs_GetFDAttr
+	public _util_InitAllocSymList
+	public _util_AppendSymList
+	public _util_RemoveFromSymList
+	public _util_SearchSymList
+	public _util_FreeSymList
+	public _sys_Exec
+	public _sys_ExecV
+	public _sys_ExecData
+	public _sys_ExecBegin
+	public _sys_ExecContinue
+	public _fs_IsOSBackupPresent
+	public _util_SHA256
+	public _str_FromByte
+	public _str_FromInt
+	public _str_FromLong
+	public _str_ToInt
+	public _gui_CharFromCode
 _boot_os                         := $20108
 _handle_interrupt                := $2010C
 _HandleInstruction               := $20110
+_sc_HandleSysCall                := $20114
 _handle_offsetinstruction        := $2011C
 _sys_ExecuteFile                 := $22400
 _os_GetOSInfo                    := $22404
@@ -247,8 +275,11 @@ _fs_DirList                      := $22524
 _sys_Free                        := $22528
 _sys_CallExecuteFile             := $2252C
 _sys_JumpExecuteFile             := $22530
-_sys_OpenDevice                  := $22534
+_drv_InitDevice                  := $22534
 _fs_CopyFile                     := $22538
+_sys_GetRandomAddress            := $2253C
+_sys_Random8                     := $22540
+_sys_Random32                    := $22544
 _fs_GetSector                    := $22548
 _fs_WriteByte                    := $2254C
 _fs_RenameFile                   := $22550
@@ -257,7 +288,7 @@ _fs_CreateDir                    := $22558
 _bosgfx_BufClear                    := $2255C
 _bosgfx_LcdClear                    := $22560
 _fs_SanityCheck                  := $22564
-_sys_SetupOnInterruptHandler     := $22568
+_sys_SetOnInterruptHandler       := $22568
 _asm_gui_PrintChar                   := $2256C
 _bosgfx_SetDraw                     := $22570
 _asm_gui_PrintString                 := $22574
@@ -332,6 +363,29 @@ _sys_MallocDupStrN               := $22698
 __SearchSymTable                 := $2269C
 _fs_Rename                       := $226A0
 _fs_AllocChk                     := $226A4
+_sys_GetExecType                 := $226A8
+_sys_GetExecTypeFD               := $226AC
+_util_Zx7Compress                := $226B0
+_sys_OpenRecoveryMenu            := $226B4
+_util_Relocate                   := $226B8
+_fs_GetFDAttr                    := $226BC
+_util_InitAllocSymList           := $226C0
+_util_AppendSymList              := $226C4
+_util_RemoveFromSymList          := $226C8
+_util_SearchSymList              := $226CC
+_util_FreeSymList                := $226D0
+_sys_Exec                        := $226D4
+_sys_ExecV                       := $226D8
+_sys_ExecData                    := $226DC
+_sys_ExecBegin                   := $226E0
+_sys_ExecContinue                := $226E4
+_fs_IsOSBackupPresent            := $226E8
+_util_SHA256                     := $226EC
+_str_FromByte                    := $226F0
+_str_FromInt                     := $226F4
+_str_FromLong                    := $226F8
+_str_ToInt                       := $226FC
+_gui_CharFromCode                := $22700
 
 public ram_executable
 public ram_executable_at

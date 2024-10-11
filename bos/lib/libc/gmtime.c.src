@@ -3,107 +3,184 @@
 	section	.text,"ax",@progbits
 	public	_gmtime
 _gmtime:
-	ld	hl, -10
+	ld	hl, -24
 	call	__frameset
 	ld	iy, (ix + 6)
-	ld	bc, 0
+	ld	bc, 1
 	xor	a, a
+	ld	hl, 2
+	ld	(ix - 18), hl
 	lea	hl, iy
 	ld	hl, (hl)
 	ld	e, (iy + 3)
-	ld	iy, 70
-	ld	(_gmtime.tm2), bc
-	ld	(_gmtime.tm2+3), bc
-	ld	(_gmtime.tm2+6), bc
-	inc	bc
+	ld	iy, 0
+	ld	(_gmtime.tm2), iy
+	ld	(_gmtime.tm2+3), iy
+	ld	(_gmtime.tm2+6), iy
+	ld	(ix - 15), bc
 	ld	(_gmtime.tm2+9), bc
-	dec	bc
-	ld	(_gmtime.tm2+12), bc
-	ld	(_gmtime.tm2+15), iy
+	ld	(_gmtime.tm2+12), iy
+	ld	bc, 70
+	ld	(_gmtime.tm2+15), bc
 	ld	(ix - 3), hl
-	ld	(ix - 4), e
+	ld	(ix - 9), e
 	ld	bc, 86400
 	call	__ldivu
 	ld.sis	de, 4
 	add.sis	hl, de
 	ld.sis	bc, 7
 	call	__sremu
-	ld	de, 0
-	ld	e, l
-	ld	d, h
-	ld	(_gmtime.tm2+18), de
+	ld	bc, 0
+	ld	c, l
+	ld	b, h
+	ld	(_gmtime.tm2+18), bc
+	ld	bc, 70
 	scf
 	sbc	hl, hl
 	ld	(_gmtime.tm2+24), hl
+	ld	de, 1970
 BB0_1:
-	push	iy
-	call	_istmleap
+	ld	(ix - 6), iy
+	add	iy, bc
+	push	de
 	pop	hl
-	bit	0, a
-	ld	bc, -1932032
+	ld	bc, 400
+	call	__idivu
+	call	__imulu
+	push	hl
+	pop	bc
+	ld	hl, 1970
+	or	a, a
+	sbc	hl, bc
+	ld	(ix - 24), hl
+	ld	(ix - 12), de
+	ex	de, hl
+	ld	bc, 100
+	call	__idivu
+	call	__imulu
+	ld	de, (ix - 6)
+	ld	bc, -1970
+	add	hl, bc
+	ld	(ix - 21), hl
+	or	a, a
+	sbc	hl, de
 	jr	nz, BB0_3
-	ld	bc, -2018432
+	ex	de, hl
+	ld	de, (ix - 24)
+	add	hl, de
+	jr	BB0_4
 BB0_3:
-	bit	0, a
-	ld	d, 0
-	ld	iy, 86400
-	ld	hl, (ix - 3)
-	ld	e, (ix - 4)
+	lea	hl, iy
+	ld	bc, 3
+	call	__iand
+BB0_4:
 	ld	a, 1
+	add	hl, bc
+	or	a, a
+	sbc	hl, bc
+	ld	d, -1
+	ld	hl, (ix - 3)
+	ld	e, (ix - 9)
+	jr	z, BB0_6
+	ld	d, 0
+BB0_6:
+	bit	0, d
+	ld	bc, -1932032
+	jr	nz, BB0_8
+	ld	bc, -2018432
+BB0_8:
+	bit	0, d
 	call	__lcmpu
-	jr	c, BB0_5
+	jr	c, BB0_10
 	call	__lsub
 	ld	(ix - 3), hl
-	ld	(ix - 4), e
-	ld	iy, (_gmtime.tm2+15)
+	ld	(ix - 9), e
+	ld	iy, (ix - 6)
+	lea	hl, iy
+	ld	bc, 71
+	add	hl, bc
+	ld	(_gmtime.tm2+15), hl
 	inc	iy
-	ld	(_gmtime.tm2+15), iy
-	jr	BB0_1
-BB0_5:
-	lea	bc, iy
-	ld	a, d
+	ld	de, (ix - 12)
+	inc	de
+	ld	hl, 70
+	push	hl
+	pop	bc
+	jp	BB0_1
+BB0_10:
+	ld	bc, 86400
+	xor	a, a
 	call	__ldivu
 	ld	(_gmtime.tm2+21), hl
-	ld	hl, (_gmtime.tm2+15)
+	ld	a, 28
+	ld	(_gmtime.dpm+1), a
+	ld	hl, (ix - 6)
 	push	hl
-	call	_istmleap
-	pop	hl
-	xor	a, 1
-	bit	0, a
-	jr	nz, BB0_7
+	pop	iy
+	ld	bc, 70
+	add	iy, bc
+	ex	de, hl
+	ld	hl, (ix - 21)
+	or	a, a
+	sbc	hl, de
+	jr	nz, BB0_12
+	ld	hl, (ix - 12)
+	ld	bc, 400
+	call	__idivu
+	call	__imulu
+	push	hl
+	pop	bc
+	ld	hl, 1970
+	or	a, a
+	sbc	hl, bc
+	add	hl, de
+	jr	BB0_13
+BB0_12:
+	lea	hl, iy
+	ld	bc, 3
+	call	__iand
+BB0_13:
+	push	af
+	ld	a, (ix - 9)
+	ld	iyl, a
+	pop	af
+	add	hl, bc
+	or	a, a
+	sbc	hl, bc
+	jr	nz, BB0_15
 	ld	a, 29
 	ld	(_gmtime.dpm+1), a
-BB0_7:
-	ld	bc, (_gmtime.tm2+12)
-	ld	d, 0
-	ld	a, d
+BB0_15:
 	ld	hl, _gmtime.dpm
-BB0_8:
-	ld	iy, 0
-	ld	(ix - 7), bc
+	ld	de, 0
+	ld	(ix - 6), de
+	ld	d, iyl
+BB0_16:
+	ld	bc, (ix - 6)
 	add	hl, bc
-	ld	l, (hl)
-	ex	de, hl
-	ld	iyl, e
-	ex	de, hl
-	ld	e, 0
+	ld	iy, 0
+	push	af
+	ld	a, (hl)
+	ld	iyl, a
+	pop	af
+	ld	e, iyh
 	lea	hl, iy
 	ld	bc, 86400
-	ld	d, a
+	xor	a, a
 	call	__lmulu
 	push	hl
 	pop	bc
 	ld	a, e
 	ld	hl, (ix - 3)
-	ld	e, (ix - 4)
+	ld	e, d
 	call	__lcmpu
-	jr	c, BB0_10
+	jr	c, BB0_18
 	ld	e, 0
-	ld	hl, (ix - 7)
+	ld	hl, (ix - 6)
 	push	hl
 	pop	bc
 	inc	bc
-	ld	(ix - 10), bc
+	ld	(ix - 9), bc
 	inc	hl
 	ld	(_gmtime.tm2+12), hl
 	lea	hl, iy
@@ -111,94 +188,85 @@ BB0_8:
 	ld	a, -1
 	call	__lmulu
 	ld	bc, (ix - 3)
-	ld	a, (ix - 4)
+	ld	a, d
 	call	__ladd
 	ld	(ix - 3), hl
-	ld	(ix - 4), e
-	ld	bc, (ix - 10)
+	ld	d, e
+	ld	hl, (ix - 9)
+	ld	(ix - 6), hl
 	ld	hl, _gmtime.dpm
-	ld	a, d
-	jr	BB0_8
-BB0_10:
-	ld	a, 28
-	ld	(_gmtime.dpm+1), a
-	ld	iy, (_gmtime.tm2+9)
-	inc	iy
+	jr	BB0_16
+BB0_18:
 	ld	bc, (ix - 3)
-	ld	a, (ix - 4)
-BB0_11:
-	ld	hl, 86399
-	ld	e, d
+	ld	iy, 86399
+BB0_19:
+	lea	hl, iy
+	ld	e, 0
+	ld	a, d
 	call	__lcmpu
-	jr	nc, BB0_13
+	jr	nc, BB0_21
 	push	bc
 	pop	hl
-	ld	e, a
+	ld	e, d
 	ld	bc, -86400
 	ld	a, -1
 	call	__ladd
 	push	hl
 	pop	bc
-	ld	a, e
-	ld	(_gmtime.tm2+9), iy
-	inc	iy
-	jr	BB0_11
-BB0_13:
-	ld	iy, (_gmtime.tm2+6)
-BB0_14:
-	inc	iy
+	ld	d, e
+	ld	hl, (ix - 18)
+	ld	(_gmtime.tm2+9), hl
+	inc	hl
+	ld	(ix - 18), hl
+	jr	BB0_19
+BB0_21:
+	ld	iy, 1
+BB0_22:
 	ld	hl, 3599
-	ld	e, d
+	ld	e, 0
+	ld	a, d
 	call	__lcmpu
-	jr	nc, BB0_16
+	jr	nc, BB0_24
 	push	bc
 	pop	hl
-	ld	e, a
+	ld	e, d
 	ld	bc, -3600
 	ld	a, -1
 	call	__ladd
 	push	hl
 	pop	bc
-	ld	a, e
+	ld	d, e
 	ld	(_gmtime.tm2+6), iy
-	jr	BB0_14
-BB0_16:
-	ld	iy, (_gmtime.tm2+3)
-BB0_17:
 	inc	iy
-	ld	hl, 59
-	ld	e, d
+	jr	BB0_22
+BB0_24:
+	ld	iy, 59
+BB0_25:
+	lea	hl, iy
+	ld	e, 0
+	ld	a, d
 	call	__lcmpu
-	jr	nc, BB0_19
+	jr	nc, BB0_27
 	push	bc
 	pop	hl
-	ld	e, a
+	ld	e, d
 	ld	bc, -60
-	ld	a, -1
+	ld	a, b
 	call	__ladd
 	push	hl
 	pop	bc
-	ld	a, e
-	ld	(_gmtime.tm2+3), iy
-	jr	BB0_17
-BB0_19:
+	ld	d, e
+	ld	hl, (ix - 15)
+	ld	(_gmtime.tm2+3), hl
+	inc	hl
+	ld	(ix - 15), hl
+	jr	BB0_25
+BB0_27:
 	ld	(_gmtime.tm2), bc
 	ld	hl, _gmtime.tm2
 	ld	sp, ix
 	pop	ix
 	ret
-	section	.text,"ax",@progbits
-
-	section	.text,"ax",@progbits
-	private	_istmleap
-_istmleap:
-	call	__frameset0
-	ld	hl, (ix + 6)
-	ld	de, 1900
-	add	hl, de
-	ld	(ix + 6), hl
-	pop	ix
-	jp	___isleap
 	section	.text,"ax",@progbits
 
 	section	.data,"aw",@progbits
@@ -211,15 +279,16 @@ _gmtime.dpm:
 _gmtime.tm2:
 	rb	27
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
+	extern	__idivu
 	extern	__ldivu
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__frameset
+	extern	__iand
 	extern	__sremu
 	extern	__lmulu
+	extern	__imulu
 	extern	__lsub
 	extern	__lcmpu
-	extern	__frameset0
 	extern	__ladd
-	extern	___isleap

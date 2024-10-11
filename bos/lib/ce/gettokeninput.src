@@ -1,0 +1,147 @@
+	assume	adl=1
+
+kUp           := 3
+kLeft         := 2
+kDown         := 4
+kEnter        := 5
+kClear        := 9
+kRight        := 1
+kQuit         := $40
+kIns          := $0B
+curLock       := 4
+flags         := $D00080
+keyExtend     := $D0058E
+curRow        := $D00595		; also includes curCol
+curUnder      := $D00599
+_PutS         := $207C0
+_PutC         := $207B8
+_PutPS        := $207C8
+_GetKey       := $20D8C
+_CursorOn     := $208B0
+_CursorOff    := $208A8
+_PullDownChk  := $208BC
+_ConvKeyToTok := $20E40
+_GetTokString := $20874
+_PutTokString := $20D74
+_ClrTxtShd    := $20818
+
+	section	.text
+	public	_os_GetTokenInput
+_os_GetTokenInput:
+	call	__frameset0
+	ld	iy,flags
+	ld	l,(iy + $0d)
+	ld	h,(iy + $4c)
+	push	hl			; save text flags
+	set	1,(iy + $0d)		; use text buffer
+	res	5,(iy + $4c)		; use text buffer
+	call	_ClrTxtShd
+	ld	hl,(ix+6)		; hl -> input string prompt
+	add	hl,de
+	xor	a,a
+	sbc	hl,de
+	call	nz,_PutS
+	ld	hl,(curRow)
+.start:
+	push	hl			; save initial row/column
+	push	ix			; save frame pointer
+	ld	hl,(ix+9)
+	push	hl			; save buf start pointer
+	push	hl			; save buf pointer
+	ld	hl,(ix+12)		; buffer size
+	push	hl			; save remaining size
+.loop:
+	call	_CursorOn
+.getkey:
+	call	_GetKey
+	call	_CursorOff
+	call	_PullDownChk
+	push	af
+	call	_CursorOn
+	pop	af
+	jr	c,.getkey
+	cp	a,kQuit
+	jr	z,.done
+	dec	a			; kRight=1
+	cp	a,kEnter-kRight		; kEnter=kDown+1
+	jr	c,.loop
+	jr	z,.done
+	inc	a
+	cp	a,kIns
+	jr	z,.loop
+	cp	a,kClear
+	jr	z,.clear
+	cp	a,$F3			; for lists? idk something is wrong with _PullDownChk
+	jr	c,.conv_key
+	cp	a,$FB+1
+	jr	nc,.conv_key
+	sub	a,$7C
+	ld	(keyExtend),a
+	ld	a,$FE
+.conv_key:
+	call	_ConvKeyToTok
+	pop	bc			; restore remaining size
+	xor	a,a
+	cp	a,d			; check if 2-byte token
+	sbc	hl,hl			; sets Z if 1-byte token
+	dec	hl
+	add	hl,bc			; subtract 1 or 2 from remaining size
+	jr	nc,.full
+	ex	(sp),hl			; restore buf pointer
+	jr	z,.one_byte_token
+	ld	(hl),d
+	inc	hl
+.one_byte_token:
+	ld	(hl),e
+	inc	hl
+	ex	(sp),hl			; save buf pointer
+	push	hl			; save remaining size
+	call	_GetTokString
+	call	_PutPS
+	jr	.loop
+
+.done:
+	pop	de			; remaining size
+.done_full:
+	call	_ClrTxtShd
+	call	_CursorOff
+	pop	hl			; restore buf pointer
+	pop	de			; restore buf start pointer
+	or	a,a
+	sbc	hl,de
+	pop	de			; frame pointer
+	pop	de			; initial row/column
+	pop	de			; restore text flags
+	ld	(iy + $0d),e
+	ld	(iy + $4c),d
+	pop	ix
+	ret
+
+.full:
+	call	_GetKey
+	cp	a,kEnter
+	jr	z,.done_full
+	cp	a,kClear
+	jr	nz,.full
+.clear:
+	pop	hl			; buf pointer
+	pop	hl			; buf start pointer
+	pop	ix			; restore frame pointer
+	pop	de			; restore initial row/column
+	ld	hl,curRow
+	ld	bc,(hl)
+	ld	(hl),de
+.clear_loop:
+	push	hl
+	ld	hl,(hl)
+	ld	a,' '
+	call	_PutC
+	or	a,a
+	sbc	hl,bc			; check the row/column before the print
+	pop	hl
+	jr	nz,.clear_loop
+	ld	(hl),de
+	ex	de,hl
+	jp	.start
+
+	extern	__frameset0

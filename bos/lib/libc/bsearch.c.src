@@ -6,7 +6,7 @@ _bsearch:
 	ld	hl, -12
 	call	__frameset
 	ld	iy, 1
-	ld	c, 1
+	ld	c, iyl
 BB0_1:
 	lea	de, iy
 	push	de
@@ -76,7 +76,7 @@ BB0_4:
 	sbc	hl, de
 	call	pe, __setflag
 	ld	a, -1
-	ld	l, 0
+	ld	l, d
 	jp	m, BB0_9
 	ld	a, l
 BB0_9:
@@ -107,7 +107,7 @@ BB0_15:
 	ret
 	section	.text,"ax",@progbits
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__setflag
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister

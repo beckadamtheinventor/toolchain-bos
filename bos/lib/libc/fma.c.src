@@ -5,11 +5,11 @@
 _fmaf:
 	call	__frameset0
 	ld	bc, (ix + 6)
-	ld	a, (ix + 9)
 	ld	hl, (ix + 12)
-	ld	e, (ix + 15)
 	ld	iy, (ix + 18)
 	ld	d, (ix + 21)
+	ld	a, (ix + 9)
+	ld	e, (ix + 15)
 	call	__fmul
 	lea	hl, iy
 	ld	e, d
@@ -25,7 +25,7 @@ _fmaf:
 	public	_fma
 	label	_fma at _fmaf
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__fadd

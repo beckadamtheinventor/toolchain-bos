@@ -4,35 +4,50 @@
 	public	__ldexpf_c
 __ldexpf_c:
 	call	__frameset0
-	ld	iy, (ix + 6)
+	ld	hl, (ix + 6)
 	ld	e, (ix + 9)
 	ld	bc, 0
-	ld	d, 0
-	lea	hl, iy
-	ld	a, d
+	xor	a, a
 	call	__fcmp
-	jp	z, BB0_5
+	jp	z, BB0_8
+	push	de
+	push	hl
+	call	__isfinitef
+	pop	de
+	pop	de
+	add	hl, bc
+	or	a, a
+	sbc	hl, bc
+	jr	nz, BB0_3
+	ld	hl, (ix + 6)
+	ld	e, (ix + 9)
+	jp	BB0_8
+BB0_3:
+	ld	iy, (ix + 12)
+	ld	de, 255
 	ld	l, 23
-	lea	bc, iy
-	ld	a, e
+	ld	bc, (ix + 6)
+	ld	a, (ix + 9)
 	call	__lshru
 	push	bc
 	pop	hl
-	ld	bc, 255
+	push	de
+	pop	bc
 	call	__iand
+	lea	bc, iy
 	push	hl
 	pop	iy
-	ld	bc, (ix + 12)
 	add	iy, bc
-	ld	bc, 256
+	inc	de
 	lea	hl, iy
 	or	a, a
-	sbc	hl, bc
+	sbc	hl, de
 	call	pe, __setflag
-	jp	m, BB0_3
+	jp	m, BB0_5
 	ld	hl, -8388608
-	ld	bc, 5
-	ld	(_errno), bc
+	ld	de, 5
+	ld	(_errno), de
+	ld	e, (ix + 9)
 	push	de
 	ld	de, (ix + 6)
 	push	de
@@ -40,57 +55,53 @@ __ldexpf_c:
 	push	de
 	push	hl
 	call	_copysignf
-	ld	d, e
 	pop	bc
 	pop	bc
 	pop	bc
 	pop	bc
-	jr	BB0_6
-BB0_3:
-	ld	bc, 1
+	jr	BB0_8
+BB0_5:
+	ld	de, 1
 	lea	hl, iy
 	or	a, a
-	sbc	hl, bc
+	sbc	hl, de
 	call	pe, __setflag
 	jp	p, BB0_7
 	ld	hl, 5
 	ld	(_errno), hl
-BB0_5:
 	or	a, a
 	sbc	hl, hl
-BB0_6:
-	ld	e, d
-	pop	ix
-	ret
+	ld	e, h
+	jr	BB0_8
 BB0_7:
 	xor	a, a
 	ld	l, 23
-	ld	bc, (ix + 12)
 	call	__lshl
 	push	bc
 	pop	hl
-	ld	d, e
 	ld	e, a
 	ld	bc, (ix + 6)
-	ld	a, d
+	ld	a, (ix + 9)
 	call	__ladd
-	ld	d, e
-	jr	BB0_6
+BB0_8:
+	pop	ix
+	ret
 	section	.text,"ax",@progbits
 
 	section	.text,"ax",@progbits
 	public	__ldexp_c
 	label	__ldexp_c at __ldexpf_c
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__setflag
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__lshl
 	extern	__iand
 	extern	_copysignf
+	extern	__isfinitef
 	extern	__frameset0
-	extern	_errno
 	extern	__lshru
 	extern	__fcmp
 	extern	__ladd
+	extern	_errno

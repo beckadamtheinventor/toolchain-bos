@@ -1,10 +1,11 @@
-library	MSDDRVCE, 1
-	export	msd_Open ; 0
-	export	msd_Close ; 3
-	export	msd_Reset ; 6
-	export	msd_Info ; 9
-	export	msd_Read ; 12
-	export	msd_Write ; 15
-	export	msd_ReadAsync ; 18
-	export	msd_WriteAsync ; 21
-	export	msd_FindPartitions ; 24
+	library	MSDDRVCE, 1
+
+	export	msd_Open
+	export	msd_Close
+	export	msd_Reset
+	export	msd_Info
+	export	msd_Read
+	export	msd_Write
+	export	msd_ReadAsync
+	export	msd_WriteAsync
+	export	msd_FindPartitions

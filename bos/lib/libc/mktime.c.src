@@ -3,190 +3,132 @@
 	section	.text,"ax",@progbits
 	public	_mktime
 _mktime:
-	ld	hl, -8
+	ld	hl, -6
 	call	__frameset
-	ld	iy, (ix + 6)
-	xor	a, a
-	ld	bc, -1
-	ld	iy, (iy + 15)
-	ld	de, 70
-	lea	hl, iy
-	or	a, a
-	sbc	hl, de
-	call	pe, __setflag
-	jp	p, BB0_2
-	ld	e, -1
-	jp	BB0_6
-BB0_2:
-	ld	de, -70
-	ld	bc, 365
-	lea	hl, iy
-	add	hl, de
-	ld	e, 0
-	call	__lmulu
-	ld	bc, 1970
-	ld	(ix - 3), hl
-	ld	(ix - 4), e
-BB0_3:
-	lea	hl, iy
-	ld	de, 1900
-	add	hl, de
-	ex	de, hl
-	push	bc
-	pop	hl
-	or	a, a
-	sbc	hl, de
-	jr	nc, BB0_5
-	push	bc
-	ld	(ix - 7), bc
-	call	___isleap
-	pop	hl
-	and	a, 1
-	ld	bc, 0
-	ld	c, a
-	xor	a, a
-	ld	hl, (ix - 3)
-	ld	e, (ix - 4)
-	call	__ladd
-	ld	bc, (ix - 7)
-	ld	(ix - 3), hl
-	ld	(ix - 4), e
-	inc	bc
-	ld	iy, (ix + 6)
-	ld	iy, (iy + 15)
-	jr	BB0_3
-BB0_5:
 	ld	hl, (ix + 6)
-	ld	(ix - 7), iy
+	ld	bc, 60
+	ld	a, 1
+	ld	de, (hl)
 	push	hl
+	pop	iy
+	ld	hl, (iy + 3)
+	call	__imulu
+	add	hl, de
+	ld	(ix - 3), hl
+	ld	iy, (ix + 6)
+	ld	hl, (iy + 6)
+	ld	bc, 3600
+	call	__imulu
+	push	hl
+	pop	de
+	ld	hl, (ix - 3)
+	add	hl, de
+	ld	(ix - 3), hl
+	ld	hl, (ix + 6)
+	ex	de, hl
+	push	de
 	pop	iy
 	ld	hl, (iy + 12)
 	ld	bc, 3
 	call	__imulu
 	push	hl
 	pop	de
-	ld	hl, _mktime.dpmt
+	ld	hl, _mktime.yday
 	add	hl, de
-	ld	bc, (hl)
-	xor	a, a
-	ld	hl, (ix - 3)
-	ld	e, (ix - 4)
-	call	__ladd
-	ld	(ix - 3), hl
-	ld	(ix - 4), e
-	ld	hl, (ix - 7)
-	push	hl
-	call	___isleap
-	pop	hl
-	and	a, 1
-	ld	bc, 0
-	ld	c, a
-	ld	hl, (ix - 3)
-	ld	e, (ix - 4)
-	xor	a, a
-	call	__ladd
-	ld	(ix - 3), hl
-	ld	iy, (ix + 6)
-	ld	bc, (iy + 9)
-	dec	bc
-	push	bc
-	pop	hl
-	push	bc
-	pop	iy
-	add	iy, iy
-	sbc	hl, hl
-	push	hl
-	pop	iy
-	ld	hl, (ix - 3)
-	ld	a, iyl
-	call	__ladd
+	ld	de, (hl)
+	ld	hl, (iy + 9)
+	add	hl, de
 	ld	bc, 86400
-	xor	a, a
-	call	__lmulu
+	call	__imulu
+	push	hl
+	pop	de
+	ld	hl, (ix - 3)
+	add	hl, de
 	ld	(ix - 3), hl
-	ld	(ix - 4), e
 	ld	iy, (ix + 6)
-	ld	bc, (iy + 6)
-	push	bc
-	pop	hl
-	push	bc
-	pop	iy
-	add	iy, iy
-	sbc	hl, hl
-	push	hl
-	pop	de
-	push	bc
-	pop	hl
-	ld	bc, 3600
-	call	__lmulu
-	ld	(ix - 7), hl
-	ld	(ix - 8), e
-	ld	iy, (ix + 6)
-	ld	bc, (iy + 3)
-	push	bc
-	pop	hl
-	push	bc
-	pop	iy
-	add	iy, iy
-	sbc	hl, hl
-	push	hl
-	pop	de
-	push	bc
-	pop	hl
-	ld	bc, 60
-	call	__lmulu
-	ld	bc, (ix - 7)
-	ld	a, (ix - 8)
-	call	__ladd
-	ld	(ix - 7), hl
-	ld	hl, (ix + 6)
-	ld	bc, (hl)
-	push	bc
-	pop	hl
-	push	bc
-	pop	iy
-	add	iy, iy
-	sbc	hl, hl
-	push	hl
-	pop	iy
-	ld	hl, (ix - 7)
-	ld	a, iyl
-	call	__ladd
-	ld	bc, (ix - 3)
-	ld	a, (ix - 4)
-	call	__ladd
+	ld	hl, (iy + 15)
+	ld	(ix - 6), hl
+	ld	de, -70
+	add	hl, de
 	push	hl
 	pop	bc
-BB0_6:
+	push	bc
+	pop	iy
+	add	iy, iy
+	sbc	hl, hl
+	push	hl
+	pop	de
 	push	bc
 	pop	hl
+	ld	bc, -2018432
+	call	__lmulu
+	ld	bc, (ix - 3)
+	dec	a
+	call	__ladd
+	ld	(ix - 3), hl
+	ld	iy, (ix - 6)
+	lea	hl, iy
+	ld	bc, -69
+	add	hl, bc
+	ld	bc, 4
+	call	__idivs
+	ld	bc, 86400
+	call	__imulu
+	push	hl
+	pop	bc
+	ld	hl, (ix - 3)
+	call	__ladd
+	ld	(ix - 3), hl
+	dec	iy
+	lea	hl, iy
+	ld	bc, 100
+	call	__idivs
+	ld	bc, 86400
+	call	__imulu
+	push	hl
+	pop	bc
+	ld	hl, (ix - 3)
+	call	__lsub
+	push	hl
+	pop	iy
+	ld	bc, 299
+	ld	hl, (ix - 6)
+	add	hl, bc
+	ld	bc, 400
+	call	__idivs
+	ld	bc, 86400
+	call	__imulu
+	push	hl
+	pop	bc
+	lea	hl, iy
+	call	__ladd
 	ld	sp, ix
 	pop	ix
 	ret
 	section	.text,"ax",@progbits
 
 	section	.rodata,"a",@progbits
-	private	_mktime.dpmt
-_mktime.dpmt:
-	dl	0
-	dl	31
-	dl	59
-	dl	90
-	dl	120
-	dl	151
-	dl	181
-	dl	212
-	dl	243
-	dl	273
-	dl	304
-	dl	334
+	private	_mktime.yday
+_mktime.yday:
+	dl	16777215
+	dl	30
+	dl	58
+	dl	89
+	dl	119
+	dl	150
+	dl	180
+	dl	211
+	dl	242
+	dl	272
+	dl	303
+	dl	333
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
-	extern	__setflag
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__frameset
-	extern	__lmulu
 	extern	__imulu
+	extern	__lmulu
+	extern	__lsub
 	extern	__ladd
-	extern	___isleap
+	extern	__idivs

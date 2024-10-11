@@ -8,7 +8,7 @@
 #endif
 
 #ifndef CLOCKS_PER_SEC
-#define CLOCKS_PER_SEC 32768
+#define CLOCKS_PER_SEC 32768UL
 #endif
 
 typedef unsigned long time_t;
@@ -44,6 +44,8 @@ struct tm *gmtime(const time_t *timer);
 char *asctime(const struct tm *tmp);
 
 char *ctime(const time_t *timer);
+
+size_t strftime(char* ptr, size_t maxsize, const char* format, const struct tm* timeptr);
 
 __END_DECLS
 

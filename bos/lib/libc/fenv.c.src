@@ -73,9 +73,8 @@ _fesetexceptflag:
 	ld	a, e
 	and	a, c
 	ld	e, a
-	ld	c, (iy)
 	ld	a, l
-	and	a, c
+	and	a, (iy)
 	or	a, e
 	ld	(___fe_cur_env), a
 	or	a, a
@@ -183,8 +182,7 @@ _feupdateenv:
 	sbc	hl, hl
 	ld	a, (___fe_cur_env)
 	and	a, 124
-	ld	e, (iy)
-	or	a, e
+	or	a, (iy)
 	ld	(___fe_cur_env), a
 	pop	ix
 	ret
@@ -200,7 +198,7 @@ ___fe_dfl_env:
 ___fe_cur_env:
 	rb	1
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__iand

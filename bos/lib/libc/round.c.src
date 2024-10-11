@@ -5,8 +5,7 @@
 _roundf:
 	call	__frameset0
 	ld	de, (ix + 6)
-	ld	a, (ix + 9)
-	ld	l, a
+	ld	l, (ix + 9)
 	push	hl
 	push	de
 	call	_fabs
@@ -25,8 +24,7 @@ _roundf:
 	call	_truncf
 	pop	bc
 	pop	bc
-	ld	a, (ix + 9)
-	ld	c, a
+	ld	c, (ix + 9)
 	push	bc
 	ld	bc, (ix + 6)
 	push	bc
@@ -42,7 +40,7 @@ _roundf:
 	public	_round
 	label	_round at _roundf
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__fadd

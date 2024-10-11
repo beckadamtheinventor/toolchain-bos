@@ -22,11 +22,11 @@ extern "C" {
 /**
  * @brief Structure of real variable type
  */
-typedef struct _real_t { int8_t sign, exp; uint8_t mant[7]; } real_t;
+typedef struct real_t { int8_t sign, exp; uint8_t mant[7]; } real_t;
 /**
  * @brief Structure of complex variable type
  */
-typedef struct _cplx_t { real_t real, imag; } cplx_t;
+typedef struct cplx_t { real_t real, imag; } cplx_t;
 
 /** OP1 Variable */
 #define os_OP1                  ((uint8_t*)0xD005F8)
@@ -200,7 +200,7 @@ tiflags real_t os_Int24ToReal(int24_t arg);
 float os_RealToFloat(const real_t *arg);
 
 /**
- * Converts an float to a real_t
+ * Converts a float to a real_t
  *
  * @param[in] arg Float value.
  * @note Saturates on overflow

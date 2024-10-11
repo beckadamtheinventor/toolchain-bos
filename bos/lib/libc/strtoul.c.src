@@ -33,19 +33,19 @@ BB0_1:
 	push	de
 	pop	iy
 	ld	a, 1
-	ld	c, 0
-	ld	hl, (ix + 12)
+	ld	bc, (ix + 12)
 	jr	BB0_6
 BB0_4:
 	cp	a, 45
 	ld	a, 1
-	ld	c, 0
-	ld	hl, (ix + 12)
+	ld	bc, (ix + 12)
 	jr	nz, BB0_6
-	ld	a, c
+	xor	a, a
 	push	de
 	pop	iy
 BB0_6:
+	push	bc
+	pop	hl
 	add	hl, bc
 	or	a, a
 	sbc	hl, bc
@@ -55,16 +55,19 @@ BB0_6:
 	cp	a, 48
 	jr	nz, BB0_15
 	ld	a, (iy + 1)
+	add	a, -88
 	and	a, -33
-	cp	a, 88
+	or	a, a
 	jr	z, BB0_18
 	ld	a, 8
-	jr	BB0_17
+	jr	BB0_16
 BB0_10:
 	ld	de, 16
+	push	bc
+	pop	hl
 	or	a, a
 	sbc	hl, de
-	jr	nz, BB0_16
+	jr	nz, BB0_17
 	ld	a, (iy)
 	cp	a, 48
 	jr	nz, BB0_18
@@ -78,17 +81,17 @@ BB0_14:
 	jr	BB0_18
 BB0_15:
 	ld	a, 10
-	jr	BB0_17
 BB0_16:
-	ld	hl, (ix + 12)
-	ld	a, l
-BB0_17:
 	ld	(ix - 8), a
+	jr	BB0_18
+BB0_17:
+	ld	(ix - 8), c
 BB0_18:
 	or	a, a
 	sbc	hl, hl
+	ld	e, h
 BB0_19:
-	ld	(ix - 7), c
+	ld	(ix - 7), e
 	ld	(ix - 6), hl
 	ld	(ix - 3), iy
 	ld	a, (iy)
@@ -124,13 +127,12 @@ BB0_21:
 	ld	bc, (ix - 6)
 	ld	a, (ix - 7)
 	call	__lcmpu
-	ld	c, e
 	jr	nc, BB0_19
 	ld	hl, 5
 	ld	(_errno), hl
 	scf
 	sbc	hl, hl
-	ld	c, -1
+	ld	e, h
 	jr	BB0_19
 BB0_24:
 	ld	iy, (ix + 9)
@@ -139,8 +141,8 @@ BB0_24:
 	or	a, a
 	sbc	hl, bc
 	ld	bc, (ix - 6)
-	ld	a, (ix - 9)
 	ld	d, (ix - 7)
+	ld	a, (ix - 9)
 	jr	z, BB0_34
 	ld	hl, (ix + 12)
 	add	hl, bc
@@ -191,7 +193,7 @@ BB0_38:
 	ret
 	section	.text,"ax",@progbits
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	_toupper

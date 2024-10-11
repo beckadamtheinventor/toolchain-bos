@@ -1,6 +1,3 @@
-; ---
-; void os_GetStringInput(char *string, char *buf, size_t size)
-; ---
 	assume	adl=1
 
 kUp           := 3
@@ -9,9 +6,12 @@ kDown         := 4
 kEnter        := 5
 kClear        := 9
 kRight        := 1
+kQuit         := $40
+kIns          := $0B
 curLock       := 4
 flags         := $D00080
-curRow        := $D00595
+keyExtend     := $D0058E
+curRow        := $D00595		; also includes curCol
 curUnder      := $D00599
 _PutS         := $207C0
 _PutC         := $207B8
@@ -23,120 +23,125 @@ _PullDownChk  := $208BC
 _ConvKeyToTok := $20E40
 _GetTokString := $20874
 _PutTokString := $20D74
+_ClrTxtShd    := $20818
 
 	section	.text
 	public	_os_GetStringInput
 _os_GetStringInput:
-	push	ix
-	ld	ix,0
-	add	ix,sp
+	call	__frameset0
+	ld	iy,flags
+	ld	l,(iy + $0d)
+	ld	h,(iy + $4c)
+	push	hl			; save text flags
+	set	1,(iy + $0d)		; use text buffer
+	res	5,(iy + $4c)		; use text buffer
+	call	_ClrTxtShd
 	ld	hl,(ix+6)		; hl -> input string prompt
 	add	hl,de
 	xor	a,a
 	sbc	hl,de
-	jr	z,__nodisp
-	ld	iy,flags
-	call	_PutS
-__nodisp:
+	call	nz,_PutS
 	ld	hl,(curRow)
-	ld	(__savecur),hl
-	ld	a,(ix+12)
-	dec	a
-	ld	(ix+12),a
-	ld	(ix+6),a
-__start:
-	ld	de,(ix+9)
-	jr	__loop
-__skiploop:
-	pop	ix
-	pop	de
-__loop:
-	ld	a,' '
-	ld	(curUnder),a
-	push	de
+.start:
+	push	hl			; save initial row/column
+	ld	hl,(ix+12)		; buffer size
+	add	hl,de
+	xor	a,a
+	sbc	hl,de
 	push	ix
+	push	hl			; save remaining size
+	jr	z,.empty
+	ld	de,(ix+9)
+.loop_save:
+	push	de			; save buf pointer
+.loop:
 	call	_CursorOn
-__getkey:
+.getkey:
 	call	_GetKey
 	call	_CursorOff
 	call	_PullDownChk
+	push	af
 	call	_CursorOn
-	jr	c,__getkey
-	cp	a,kLeft
-	jr	z,__skiploop
-	cp	a,kDown
-	jr	z,__skiploop
-	cp	a,kRight
-	jr	z,__skiploop
-	cp	a,kUp
-	jr	z,__skiploop
+	pop	af
+	jr	c,.getkey
+	cp	a,kQuit
+	jr	z,.done
+	dec	a			; kRight=1
+	cp	a,kEnter-kRight		; kEnter=kDown+1
+	jr	c,.loop
+	jr	z,.done
+	inc	a
+	cp	a,kIns
+	jr	z,.loop
 	cp	a,kClear
-	jr	z,__clearpop
-	cp	a,kEnter
-	jr	z,__done
+	jr	z,.clear
+	cp	a,$F3			; for lists? idk something is wrong with _PullDownChk
+	jr	c,.conv_key
+	cp	a,$FB+1
+	jr	nc,.conv_key
+	sub	a,$7C
+	ld	(keyExtend),a
+	ld	a,$FE
+.conv_key:
 	call	_ConvKeyToTok
 	call	_GetTokString
-	pop	ix
-	pop	de
-	ld	b,(hl)
+	pop	de			; restore buf pointer
+	ld	b,(hl)			; token string length
+.draw_string:
+	ex	(sp),hl			; remaining size
+	add	hl,de
+	scf
+	sbc	hl,de			; decrement and check if done
+	ex	(sp),hl
+	jr	z,.full
 	inc	hl
-	ld	a,(ix+12)
-	sub	a,b
-	jr	nc,__notfull
-	ld	b,(ix+12)
-	xor	a,a
-__notfull:
-	ld	(ix+12),a
-__draw:
 	ld	a,(hl)
 	ld	(de),a
-	inc	hl
 	inc	de
 	call	_PutC
-	djnz	__draw
-	ld	a,(ix+12)
-	or	a,a
-	jr	nz,__loop
-__full:
-	ld	a,' '
-	ld	(curUnder),a
-	push 	de
-	call	_GetKey
-	pop	de
-	cp	a,kClear
-	jr	z,__clear
-	cp	a,kEnter
-	jr	z,__exit
-	jr	__full
-__clearpop:
-	pop	ix
-	pop	de
-__clear:
-__savecur := $+1
-	ld	hl,0
-	ld	(curRow),hl
-	ld	a,(ix+6)
-	ld	b,(ix+12)
-	ld	(ix+12),a
-	sub	a,b
-	ld	b,a
-	inc	b
-__clearloop:
-	ld	a,' '
-	call	_PutC
-	djnz	__clearloop
-	ld	hl,(__savecur)
-	ld	(curRow),hl
-	jp	__start
-__done:
-	pop	ix
-	pop	de
-__exit:
-	ld	a,' '
-	ld	(curUnder),a
-	xor	a,a
-	ld	(de),a
+	djnz	.draw_string
+	jr	.loop_save
+
+.done:
+	pop	hl			; restore buf pointer
+	ld	(hl),0
+.empty:
+	pop	hl			; remaining size
+	pop	hl			; saved IX
+	pop	hl			; initial row/column
+	call	_ClrTxtShd
 	call	_CursorOff
-	di
+	pop	hl			; restore text flags
+	ld	(iy + $0d),l
+	ld	(iy + $4c),h
 	pop	ix
 	ret
+
+.full:
+	push	de			; save buf pointer
+.full_loop:
+	call	_GetKey
+	cp	a,kEnter
+	jr	z,.done
+	cp	a,kClear
+	jr	nz,.full_loop
+.clear:
+	pop	hl			; restore buf pointer
+	inc	hl
+	pop	de			; remaining size
+	pop	ix
+	pop	de			; initial row/column
+	ld	(curRow),de
+.clear_loop:
+	ld	a,' '
+	call	_PutC
+	ld	bc,(ix+9)
+	scf
+	sbc	hl,bc			; decrement and compare to buf start
+	add	hl,bc
+	jr	nz,.clear_loop
+	ex	de,hl
+	ld	(curRow),hl
+	jp	.start
+
+	extern	__frameset0

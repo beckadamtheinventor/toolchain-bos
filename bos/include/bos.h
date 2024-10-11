@@ -5,33 +5,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct __filesystem_device_t__ {
-	uint8_t flags;
-	uint8_t unused[3];
-	// Called by the OS to open a file within this device as a filesystem.
-	uint8_t fs_OpenFileJP;
-	void *(*fs_OpenFile)(char *path);
-	// Called by the OS to create a file within this device as a filesystem.
-	uint8_t fs_CreateFileJP;
-	void *(*fs_CreateFile)(char *path, int flags);
-	// Called by the OS to delete a file within this device as a filesystem.
-	uint8_t fs_DeleteFileJP;
-	void *(*fs_DeleteFile)(char *path);
-	// Called by the OS to read from a file within this device as a filesystem. Data is a physical address where data is read into.
-	uint8_t fs_ReadJP;
-	unsigned int (*fs_Read)(void *data, unsigned int len, uint8_t count, void *fd);
-	// Called by the OS to write to a file within this device as a filesystem. Data is a physical address where data is written from.
-	uint8_t fs_WriteJP;
-	unsigned int (*fs_Write)(void *data, unsigned int len, uint8_t count, void *fd);
-} filesystem_device_t;
-
 typedef struct __device_t__ {
 	uint8_t header;
 	uint8_t flags;
 	uint8_t type;
 	uint8_t version;
 	uint8_t intSource;
-	filesystem_device_t *fs;
+	uint8_t fsdevflags;
+	uint8_t reserved[2];
+	// Generic device jump table
 	// Initialize the device.
 	uint8_t initjp;
 	uint8_t (*init)(void);
@@ -50,6 +32,24 @@ typedef struct __device_t__ {
 	// Called by the OS to handle interrupts this device responds to.
 	uint8_t interrupthandlerjp;
 	uint8_t (*interruptHandler)(void);
+
+	// Filesystem device jump table
+	// Called by the OS to open a file within this device as a filesystem.
+	uint8_t fs_OpenFileJP;
+	void *(*fs_OpenFile)(char *path);
+	// Called by the OS to create a file within this device as a filesystem.
+	uint8_t fs_CreateFileJP;
+	void *(*fs_CreateFile)(char *path, int flags);
+	// Called by the OS to delete a file within this device as a filesystem.
+	uint8_t fs_DeleteFileJP;
+	void *(*fs_DeleteFile)(char *path);
+	// Called by the OS to read from a file within this device as a filesystem. Data is a physical address where data is read into.
+	uint8_t fs_ReadJP;
+	unsigned int (*fs_Read)(void *data, unsigned int len, uint8_t count, void *fd);
+	// Called by the OS to write to a file within this device as a filesystem. Data is a physical address where data is written from.
+	uint8_t fs_WriteJP;
+	unsigned int (*fs_Write)(void *data, unsigned int len, uint8_t count, void *fd);
+
 } device_t;
 
 
@@ -123,6 +123,7 @@ char *fs_BaseName(const char *path);
  * Copy a file name from a file descriptor.
  * @param fd File descriptor to read file name from.
  * @return Pointer to file name.
+ * @note this routine allocates memory
  */
 char *fs_CopyFileName(void *fd);
 
@@ -220,12 +221,28 @@ uint8_t sys_WaitKey(void);
 uint8_t sys_WaitKeyCycle(void);
 
 /**
+ * Set a routine to be called when the on key is pressed.
+ * @param handler Routine to be called when the on key is pressed.
+ * @return Pointer to old routine.
+ */
+void *sys_SetOnInterruptHandler(void (*handler)(void));
+
+/**
  * Get user input.
  * @param buffer Pointer to input buffer.
  * @param len Length of input buffer - 1.
  * @return 0 if user exit, 1 if user enter, 9/12 if user presses down/up arrow key.
  */
 uint8_t gui_Input(char *buffer, unsigned int len);
+
+/**
+ * Convert a keycode from sys_GetKey to a text character.
+ * @param charset character set number to pick from.
+ * @param keycode keycode from sys_GetKey or similar.
+ * @return character corresponding to the given charset and keycode; 0 if out of bounds or N/A.
+ */
+char gui_CharFromCode(uint8_t charset, uint8_t keycode);
+
 
 /**
  * Clear the screen and print a line.
@@ -239,10 +256,10 @@ void gui_DrawConsoleWindow(const char *str);
 void gui_Print(const char *str);
 
 /**
- * Print a character to the screen, advancing the current draw collumn.
- * @param str Pointer to string to print.
+ * Print a character to the screen advancing the current draw position.
+ * @param c character to print.
  */
-void gui_PrintChar(const char *str);
+void gui_PrintChar(char c);
 
 /**
  * Print a string to the screen and advance the current draw line.
@@ -717,6 +734,15 @@ uint8_t th_CreateThread(void (*pc)(int, char**), void *sp, int argc, char **argv
  * @return Thread ID killed if success, otherwise 0.
  */
 uint8_t th_KillThread(uint8_t id);
+
+/**
+ * Relocate code in data offsetting 24-bit values (offsets of data) by origin_delta.
+ * @param data Code/data to be relocated.
+ * @param offsets Pointer to offsets of data needing to be offset.
+ * @param origin_delta Value to offset by.
+ * @note relocates data in place. Data MUST be stored in RAM, otherwise this will crash. @p offsets should be terminated by 0xffffff.
+ */
+void util_Relocate(void *data, unsigned int *offsets, int origin_delta);
 
 /**
  * Handle the next available thread, continuing from here if there are no other threads to handle,

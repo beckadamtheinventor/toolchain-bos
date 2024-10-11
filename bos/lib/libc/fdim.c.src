@@ -5,8 +5,8 @@
 _fdimf:
 	call	__frameset0
 	ld	bc, (ix + 6)
-	ld	a, (ix + 9)
 	ld	hl, (ix + 12)
+	ld	a, (ix + 9)
 	ld	e, (ix + 15)
 	call	__fsub
 	ld	(ix + 6), bc
@@ -14,7 +14,7 @@ _fdimf:
 	or	a, a
 	sbc	hl, hl
 	ld	(ix + 12), hl
-	ld	(ix + 15), 0
+	ld	(ix + 15), h
 	pop	ix
 	jp	_fmaxf
 	section	.text,"ax",@progbits
@@ -23,7 +23,7 @@ _fdimf:
 	public	_fdim
 	label	_fdim at _fdimf
 
-	ident	"clang version 14.0.0 (https://github.com/jacobly0/llvm-project 56af4f86925b7eebf23dae240e0a77c64066179e)"
+	ident	"clang version 15.0.0 (https://github.com/CE-Programming/llvm-project 23b78267b5d376b232475d0805a937e54b61e0d0)"
 	extern	__Unwind_SjLj_Register
 	extern	__Unwind_SjLj_Unregister
 	extern	__frameset0
