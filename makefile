@@ -42,7 +42,11 @@ endif
 all: install
 
 install:
+ifeq ($(OS),Windows_NT)
 	$(CPDIR) bos $(call NATIVEPATH,$(CEDEV)/bos)
+else
+	$(CPDIR) bos/* $(call NATIVEPATH,$(CEDEV)/bos)
+endif
 
 .PHONY: all install
 
